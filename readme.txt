@@ -14,6 +14,9 @@ This plugin redirects all requests for your native WordPress feeds to your Feedb
 
 You can redirect both your main feed and your comments feed if you like.
 
+= More Info / Documentation =
+For more info and full documentation, visit the [RS Feedburner homepage](http://www.redsandmarketing.com/plugins/rs-feedburner/).
+
 == Installation ==
 
 = Installation Instructions =
@@ -35,4 +38,4 @@ After you sign up for a Feedburner account, just fill in your Feedburner address
 
 = You do great work...can I hire you? =
 
-Absolutely...go to my <a href="http://www.redsandmarketing.com/web-design/wordpress-consulting/">WordPress Consulting</a> page for more information.
+Absolutely...go to my [WordPress Consulting](http://www.redsandmarketing.com/web-design/wordpress-consulting/ "WordPress Consulting") page for more information.

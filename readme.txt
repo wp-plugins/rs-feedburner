@@ -1,8 +1,8 @@
 === RS FeedBurner ===
 Contributors: RedSand
 Donate link: http://www.redsandmarketing.com/rs-feedburner-donate/
-Tags: feedburner, feed, feeds, rss
-Requires at least: 2.8
+Tags: feed, feedburner, feeds, redirect, redirection, rss, seo, subscribe, subscribers, subscription
+Requires at least: 3.0
 Tested up to: 3.9
 Stable tag: trunk
 
@@ -15,7 +15,7 @@ This plugin redirects all requests for your native WordPress feeds to your Feedb
 You can redirect both your main feed and your comments feed if you like.
 
 = More Info / Documentation =
-For more info and full documentation, visit the [RS Feedburner homepage](http://www.redsandmarketing.com/plugins/rs-feedburner/).
+For more info and full documentation, visit the [RS Feedburner homepage](http://www.redsandmarketing.com/plugins/rs-feedburner/ "RS Feedburner homepage").
 
 == Installation ==
 
@@ -26,7 +26,14 @@ For more info and full documentation, visit the [RS Feedburner homepage](http://
 3. You are good to go...it's that easy. 
 
 == Changelog ==
-No changes yet.
+
+Version 1.0.0.2, *released 04/04/14*
+
+* Minor code improvements.
+
+Version 1.0.0.0, *released 03/09/14*
+
+* Initial release.
 
 This plugin is a fork of the FeedBurner Feedsmith plugin. Since it was discontinued, I picked up where it left off so we all can have an actively updated plugin.
 

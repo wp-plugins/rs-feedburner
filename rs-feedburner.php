@@ -4,7 +4,7 @@ Plugin Name: RS Feedburner
 Plugin URI: http://www.redsandmarketing.com/plugins/rs-feedburner/
 Description: This plugin detects native WordPress feeds and redirects them to your FeedBurner feed so you can track your subscribers. 
 Author: Scott Allen
-Version: 1.0.0.1
+Version: 1.0.0.2
 Author URI: http://www.redsandmarketing.com/
 License: GPLv2
 */
@@ -32,8 +32,8 @@ License: GPLv2
 My use of the end curly braces "}" is a little funky in that I indent them, I know. IMO it's easier to debug. Just know that it's on purpose even though it's not standard. One of my programming quirks, and just how I roll. :)
 */
 
-define( 'RSFB_VERSION', '1.0.0.1' );
-define( 'RSFB_REQUIRED_WP_VERSION', '2.8' );
+define( 'RSFB_VERSION', '1.0.0.2' );
+define( 'RSFB_REQUIRED_WP_VERSION', '3.0' );
 if ( ! defined( 'RSFB_SITE_URL' ) ) {
 	define( 'RSFB_SITE_URL', untrailingslashit( site_url() ) ); // http://example.com
 	}
@@ -177,7 +177,6 @@ function rs_feedburner_options_subpanel() {
 		} else {
 		echo '<div class="wrap"><p>Sorry, you are not allowed to access this page.</p></div>';
 		}
-
 	}
 
 function rs_feed_redirect() {

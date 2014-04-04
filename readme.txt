@@ -1,7 +1,7 @@
 === RS FeedBurner ===
 Contributors: RedSand
 Donate link: http://www.redsandmarketing.com/rs-feedburner-donate/
-Tags: feedburner, feed, feeds, redirect, redirection, rss, seo, subscribe, subscribers, subscription
+Tags: feedburner, feed, feeds, redirect, redirects, rss, seo, subscribe, subscribers, subscription
 Requires at least: 3.0
 Tested up to: 3.9
 Stable tag: trunk

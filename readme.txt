@@ -14,6 +14,8 @@ This plugin redirects all requests for your native WordPress feeds to your Feedb
 
 You can redirect both your main feed and your comments feed if you like.
 
+This plugin is a fork of the FeedBurner Feedsmith plugin. Since it was discontinued, I picked up where it left off so we all can have an actively updated plugin.
+
 = More Info / Documentation =
 For more info and full documentation, visit the [RS Feedburner homepage](http://www.redsandmarketing.com/plugins/rs-feedburner/ "RS Feedburner homepage").
 

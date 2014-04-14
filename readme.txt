@@ -29,6 +29,10 @@ For more info and full documentation, visit the [RS Feedburner homepage](http://
 
 == Changelog ==
 
+Version 1.0.0.3, *released 04/13/14*
+
+* Added additional security checks.
+
 Version 1.0.0.2, *released 04/04/14*
 
 * Minor code improvements.

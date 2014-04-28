@@ -10,7 +10,7 @@ This plugin detects native WordPress feeds and redirects them to your FeedBurner
 
 == Description == 
 
-This plugin redirects all requests for your native WordPress feeds to your Feedburner feeds so you can track all your subscribers and maximize your results and user engagement.
+This plugin redirects all requests for your native WordPress feeds to your Feedburner feeds so you can track all your subscribers and maximize your blog/site readership and user engagement.
 
 You can redirect both your main WordPress feed and your comments feed if you like. (Comments feed is optional since not everyone uses it.)
 
@@ -36,6 +36,10 @@ For more info and full documentation, visit the [RS Feedburner homepage](http://
 4. You are good to go...it's that easy.
 
 == Changelog ==
+
+Version 1.0.0.4, *released 04/28/14*
+
+* Fixed a bug that caused an error message on certain server configurations.
 
 Version 1.0.0.3, *released 04/13/14*
 

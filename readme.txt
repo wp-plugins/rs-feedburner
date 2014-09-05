@@ -3,7 +3,7 @@ Contributors: RedSand
 Donate link: http://www.redsandmarketing.com/rs-feedburner-donate/
 Tags: feedburner, feed, feeds, redirect, redirects, rss, seo, subscribe, subscribers, subscription, comments
 Requires at least: 3.0
-Tested up to: 3.9
+Tested up to: 4.0
 Stable tag: trunk
 
 This plugin detects native WordPress feeds and redirects them to your FeedBurner feed so you can track your subscribers.

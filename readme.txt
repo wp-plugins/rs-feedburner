@@ -2,7 +2,7 @@
 Contributors: RedSand
 Donate link: http://www.redsandmarketing.com/rs-feedburner-donate/
 Tags: feedburner, feed, feeds, redirect, redirects, rss, seo, subscribe, subscribers, subscription, comments
-Requires at least: 3.0
+Requires at least: 3.2
 Tested up to: 4.0
 Stable tag: trunk
 
@@ -30,12 +30,50 @@ For more info and full documentation, visit the [RS Feedburner homepage](http://
 == Installation ==
 
 = Installation Instructions =
-1. After downloading, unzip file and upload the enclosed `rs-feedburner` directory to your WordPress plugins directory: `/wp-content/plugins/`.
-2. As always, **activate** the plugin on your WordPress plugins page.
-3. Go to the options page and enter the URL of your Feedburner feed, and click *Save Settings*. You can optionally enter your comments feed url on Feedburner if you have one setup.
-4. You are good to go...it's that easy.
+
+**Option 1:** Install the plugin directly through the WordPress Admin Dashboard (Recommended)
+
+1. Go to *Plugins* -> *Add New*.
+
+2. Type *RS Feedburner* into the Search box, and click *Search Plugins*.
+
+3. When the results are displayed, click *Install Now*.
+
+4. When it says the plugin has successfully installed, click **Activate Plugin** to activate the plugin (or you can do this on the Plugins page).
+
+**Option 2:** Install .zip file through WordPress Admin Dashboard
+
+1. Go to *Plugins* -> *Add New* -> *Upload*.
+
+2. Click *Choose File* and find `rs-feedburner.zip` on your computer's hard drive.
+
+3. Click *Install Now*.
+
+4. Click **Activate Plugin** to activate the plugin (or you can do this on the Plugins page).
+
+**Option 3:** Install .zip file through an FTP Client (Recommended for Advanced Users Only)
+
+1. After downloading, unzip file and use an FTP client to upload the enclosed `rs-feedburner` directory to your WordPress plugins directory (usually `/wp-content/plugins/`) on your web server.
+
+2. Go to your Plugins page in the WordPress Admin Dashboard, and find this plugin in the list.
+
+3. Click **Activate** to activate the plugin.
+
+= Next Steps After Installation = 
+
+1. Go to the options page and enter the URL of your Feedburner feed, and click *Save Settings*.
+
+2. You can optionally enter your comments feed url on Feedburner if you have one setup.
+
+You are good to go...it's that easy.
 
 == Changelog ==
+
+Version 1.2, *released 09/13/14*
+
+* Made various minor code improvements.
+* Slight performance improvement when used with other RS plugins.
+* Increased minimum required WordPress version to 3.2.
 
 Version 1.1, *released 07/11/14*
 

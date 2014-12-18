@@ -4,7 +4,7 @@ Plugin Name: RS Feedburner
 Plugin URI: http://www.redsandmarketing.com/plugins/rs-feedburner/
 Description: This plugin detects native WordPress feeds and redirects them to your FeedBurner feed so you can track your subscribers. 
 Author: Scott Allen
-Version: 1.2
+Version: 1.3
 Author URI: http://www.redsandmarketing.com/
 Text Domain: rs-feedburner
 License: GPLv2
@@ -41,8 +41,8 @@ if ( !function_exists( 'add_action' ) ) {
 	die('ERROR: This plugin requires WordPress and will not function if called directly.');
 	}
 
-define( 'RSFB_VERSION', '1.2' );
-define( 'RSFB_REQUIRED_WP_VERSION', '3.2' );
+define( 'RSFB_VERSION', '1.3' );
+define( 'RSFB_REQUIRED_WP_VERSION', '3.6' );
 // Constants prefixed with 'RSMP_' are shared with other RSM Plugins for efficiency.
 if ( !defined( 'RSFB_DEBUG' ) ) 				{ define( 'RSFB_DEBUG', false ); } // Do not change value unless developer asks you to - for debugging only. Change in wp-config.php.
 if ( !defined( 'RSMP_SITE_URL' ) ) 				{ define( 'RSMP_SITE_URL', untrailingslashit( site_url() ) ); } 						// http://example.com
@@ -187,6 +187,10 @@ function rsfb_admin_notices() {
 		}
 	delete_option('rsfb_admin_notices');
 	}
+add_action( 'plugins_loaded', 'rsfb_load_languages' );
+function rsfb_load_languages() {
+	load_plugin_textdomain( RSFB_PLUGIN_NAME, false, basename( dirname( __FILE__ ) ) . '/languages' );
+	}
 function rsfb_filter_plugin_actions( $links, $file ) {
 	// Add "Settings" Link on Admin Plugins page, in plugin listings
 	if ( $file == RSFB_PLUGIN_BASENAME ){
@@ -209,27 +213,27 @@ function rsfb_plugin_settings_page() {
 		
 	global $rsfb_flash, $rsfb_feedburner_settings, $_POST, $wp_rewrite;
 	if ( current_user_can('manage_options') ) {
-		// Easiest test to see if we have been submitted to
+		// Test to see if we have been submitted to
 		if(isset($_POST['rs_feedburner_url']) || isset($_POST['rs_feedburner_comments_url'])) {
 			// Now we check the hash, to make sure we are not getting CSRF
 			if(rsfb_is_hash_valid($_POST['rs_token'])) {
 				if (isset($_POST['rs_feedburner_url'])) { 
 					$rsfb_feedburner_settings['rs_feedburner_url'] = $_POST['rs_feedburner_url'];
 					update_option('rs_feedburner_settings',$rsfb_feedburner_settings);
-					$rsfb_flash = "Your settings have been saved.";
+					$rsfb_flash = __( 'Your settings have been saved.', RSFB_PLUGIN_NAME );
 					}
 				if (isset($_POST['rs_feedburner_comments_url'])) { 
 					$rsfb_feedburner_settings['rs_feedburner_comments_url'] = $_POST['rs_feedburner_comments_url'];
 					update_option('rs_feedburner_settings',$rsfb_feedburner_settings);
-					$rsfb_flash = "Your settings have been saved.";
+					$rsfb_flash = __( 'Your settings have been saved.', RSFB_PLUGIN_NAME );
 					} 
 				} else {
 				// Invalid form hash, possible CSRF attempt
-				$rsfb_flash = "Security hash missing.";
+				$rsfb_flash = __( 'There was an error with your request.', RSFB_PLUGIN_NAME );
 				} // endif rsfb_is_hash_valid
 			} // endif isset(feedburner_url)
 		} else {
-		$rsfb_flash = "You don't have enough access rights.";
+		$rsfb_flash = __( 'You do not have sufficient access rights.', RSFB_PLUGIN_NAME );
 		}
 	
 	if ($rsfb_flash != '') echo '<div id="message"class="updated fade"><p>' . $rsfb_flash . '</p></div>';
@@ -239,27 +243,26 @@ function rsfb_plugin_settings_page() {
 	$rsfb_token_value=rsfb_retrieve_hash();
 	echo '<div class="wrap">';
 	echo '<h2 style="color:#7c2001">' . 'RS FeedBurner ' . __('Settings') . '</h2>';
-	echo '<p><img src="'.RSFB_PLUGIN_IMG_URL.'/rs-feedburner-icon-36.png" width="36" height="36" align="left" style="width:36px;height:36px;border-style:none;vertical-align:middle;padding-right:12px;padding-top:2px;float:left;" alt="" />This plugin helps you redirect all inbound traffic for your feeds to your custom FeedBurner feed.<br />FeedBurner tracks all your feed subscriber traffic and usage and enhance your original WordPress feed.</p>
+	echo '<p><img src="'.RSFB_PLUGIN_IMG_URL.'/rs-feedburner-icon-36.png" width="36" height="36" align="left" style="width:36px;height:36px;border-style:none;vertical-align:middle;padding-right:12px;padding-top:2px;float:left;" alt="" />'.__( 'This plugin helps you redirect all inbound traffic for your feeds to your custom FeedBurner feed.<br />FeedBurner tracks all your feed subscriber traffic and usage and enhances your original WordPress feed.', RSFB_PLUGIN_NAME ).'</p>
 	<form action="" method="post">
 	<input type="hidden" name="redirect" value="true" />
 	<input type="hidden" name="rs_token" value="'.$rsfb_token_value.'" />
 	<ol>
-	<li>If you haven\'t done so already, <a href="http://feedburner.google.com/" target="_blank">create a FeedBurner feed for '.RSMP_BLOG_NAME.'</a>.
-	This feed will handle all traffic for your posts.</li>
-	<li>Once you have created your FeedBurner feed, enter its address into the field below (<strong>http://feeds.feedburner.com/YourFeed</strong>):<br /><input type="text" name="rs_feedburner_url" value="'.htmlentities($rsfb_feedburner_settings['rs_feedburner_url']).'" size="45" /></li>
-	<li>Optional: If you also want to use FeedBurner for your WordPress comments feed, <a href="http://feedburner.google.com/" target="_blank">create a FeedBurner comments feed</a> and then enter its address below:<br /><input type="text" name="rs_feedburner_comments_url" value="'.htmlentities($rsfb_feedburner_settings['rs_feedburner_comments_url']).'" size="45" />
+	<li>'.sprintf(__( 'If you haven\'t done so already, <a href="http://feedburner.google.com/" target="_blank">create a FeedBurner feed for %s</a>. This feed will handle all traffic for your posts.', RSFB_PLUGIN_NAME ),RSMP_BLOG_NAME).'</li>
+	<li>'.__( 'Once you have created your FeedBurner feed, enter its address into the field below (<strong>http://feeds.feedburner.com/YourFeed</strong>):', RSFB_PLUGIN_NAME ).'<br /><input type="text" name="rs_feedburner_url" value="'.htmlentities($rsfb_feedburner_settings['rs_feedburner_url']).'" size="45" /></li>
+	<li>'.__( 'Optional: If you also want to use FeedBurner for your WordPress comments feed, <a href="http://feedburner.google.com/" target="_blank">create a FeedBurner comments feed</a> and then enter its address below:', RSFB_PLUGIN_NAME ).'<br /><input type="text" name="rs_feedburner_comments_url" value="'.htmlentities($rsfb_feedburner_settings['rs_feedburner_comments_url']).'" size="45" />
 	</ol>
-	<p><input type="submit" value="Save Settings" /></p></form>';
+	<p><input type="submit" value="'.__( 'Save Changes' ).'" /></p></form>';
 	?>
 	<p>&nbsp;</p>
 	<p>&nbsp;</p>
 
-	<p><strong><?php _e( 'Check out our other plugins', RSFB_PLUGIN_NAME ); ?>:</strong></p>
+	<p><strong><?php _e( 'Check out our other plugins:', RSFB_PLUGIN_NAME ); ?></strong></p>
 	<p><?php _e( 'If you like RS FeedBurner, you might want to check out our other plugins:', RSFB_PLUGIN_NAME ); ?></p>
 	<ul style="list-style-type:disc;padding-left:30px;">
-		<li><a href="http://www.redsandmarketing.com/plugins/wp-spamshield/" target="_blank" ><?php echo 'WP-SpamShield ' . __( 'Anti-Spam' ); ?></a> <?php _e( 'An extremely powerful and user friendly WordPress anti-spam plugin that stops blog comment spam cold, including trackback and pingback spam. Includes spam-blocking contact form feature, and protection from user registration spam as well. WP-SpamShield is an all-in-one spam solution for WordPress. See what it\'s like to run a WordPress site without spam!', RSFB_PLUGIN_NAME ); ?></li>
-		<li><a href="http://www.redsandmarketing.com/plugins/rs-head-cleaner/" target="_blank" ><?php _e( 'RS Head Cleaner Plus' ); ?></a> <?php _e( 'This plugin cleans up a number of issues, doing the work of multiple plugins, improving speed, efficiency, security, SEO, and user experience. It removes junk code from the HEAD & HTTP headers, moves JavaScript from header to footer, combines/minifies/caches CSS & JavaScript files, hides the Generator/WordPress Version number, removes version numbers from CSS and JS links, and fixes the "Read more" link so it displays the entire post.', RSFB_PLUGIN_NAME ); ?></li>
-		<li><a href="http://www.redsandmarketing.com/plugins/scrapebreaker/" target="_blank" ><?php _e( 'ScrapeBreaker' ); ?></a> <?php _e( 'A combination of frame-breaker and scraper protection. Protect your website content from both frames and server-side scraping techniques.', RSFB_PLUGIN_NAME ); ?></li>
+		<li><a href="http://www.redsandmarketing.com/plugins/wp-spamshield/" target="_blank" ><?php echo 'WP-SpamShield ' . __( 'Anti-Spam', RSFB_PLUGIN_NAME ); ?></a> <?php _e( 'An extremely powerful and user friendly WordPress anti-spam plugin that stops blog comment spam cold, including trackback and pingback spam. Includes spam-blocking contact form feature, and protection from user registration spam as well. WP-SpamShield is an all-in-one spam solution for WordPress. See what it\'s like to run a WordPress site without spam!', RSFB_PLUGIN_NAME ); ?></li>
+		<li><a href="http://www.redsandmarketing.com/plugins/rs-head-cleaner/" target="_blank" ><?php echo 'RS Head Cleaner Plus'; ?></a> <?php _e( 'This plugin cleans up a number of issues, doing the work of multiple plugins, improving speed, efficiency, security, SEO, and user experience. It removes junk code from the HEAD & HTTP headers, moves JavaScript from header to footer, combines/minifies/caches CSS & JavaScript files, hides the Generator/WordPress Version number, removes version numbers from CSS and JS links, and fixes the "Read more" link so it displays the entire post.', RSFB_PLUGIN_NAME ); ?></li>
+		<li><a href="http://www.redsandmarketing.com/plugins/scrapebreaker/" target="_blank" ><?php echo 'ScrapeBreaker'; ?></a> <?php _e( 'A combination of frame-breaker and scraper protection. Protect your website content from both frames and server-side scraping techniques.', RSFB_PLUGIN_NAME ); ?></li>
 	</ul>
 	<p>&nbsp;</p>
 

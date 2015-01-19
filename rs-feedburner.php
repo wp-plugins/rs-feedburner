@@ -1,10 +1,10 @@
 <?php
 /*
-Plugin Name: RS Feedburner
+Plugin Name: RS FeedBurner
 Plugin URI: http://www.redsandmarketing.com/plugins/rs-feedburner/
 Description: This plugin detects native WordPress feeds and redirects them to your FeedBurner feed so you can track your subscribers. 
 Author: Scott Allen
-Version: 1.3
+Version: 1.4
 Author URI: http://www.redsandmarketing.com/
 Text Domain: rs-feedburner
 License: GPLv2
@@ -41,8 +41,8 @@ if ( !function_exists( 'add_action' ) ) {
 	die('ERROR: This plugin requires WordPress and will not function if called directly.');
 	}
 
-define( 'RSFB_VERSION', '1.3' );
-define( 'RSFB_REQUIRED_WP_VERSION', '3.6' );
+define( 'RSFB_VERSION', '1.4' );
+define( 'RSFB_REQUIRED_WP_VERSION', '3.7' );
 // Constants prefixed with 'RSMP_' are shared with other RSM Plugins for efficiency.
 if ( !defined( 'RSFB_DEBUG' ) ) 				{ define( 'RSFB_DEBUG', false ); } // Do not change value unless developer asks you to - for debugging only. Change in wp-config.php.
 if ( !defined( 'RSMP_SITE_URL' ) ) 				{ define( 'RSMP_SITE_URL', untrailingslashit( site_url() ) ); } 						// http://example.com
@@ -77,7 +77,7 @@ function rsfb_generate_hash() {
 	}
 
 function rsfb_store_hash($rsfb_generated_hash) {
-	return update_option('rs_feedburner_token',$rsfb_generated_hash,'RS Feedburner Security Hash');
+	return update_option('rs_feedburner_token',$rsfb_generated_hash,'RS FeedBurner Security Hash');
 	}
 
 function rsfb_retrieve_hash() {
@@ -150,6 +150,19 @@ function rsfb_get_server_addr() {
 function rsfb_get_server_name() {
 	if ( !empty( $_SERVER['SERVER_NAME'] ) ) { $server_name = strtolower( $_SERVER['SERVER_NAME'] ); } else { $server_name = strtolower( getenv('SERVER_NAME') ); }
 	return $server_name;
+	}
+function rsfb_is_lang_en_us( $strict = true ) {
+	// Test if site is set to use English (US) - the default - or another language/localization
+	$rsfb_locale = get_locale();
+	if ( $strict != true ) {
+		// Not strict - English, but localized translations may be in use
+		if ( !empty( $rsfb_locale ) && !preg_match( "~^(en(_[a-z]{2})?)?$~i", $rsfb_locale ) ) { $lang_en_us = false; } else { $lang_en_us = true; }
+		}
+	else {
+		// Strict - English (US), no translation being used
+		if ( !empty( $rsfb_locale ) && !preg_match( "~^(en(_us)?)?$~i", $rsfb_locale ) ) { $lang_en_us = false; } else { $lang_en_us = true; }
+		}
+	return $lang_en_us;
 	}
 // Standard Functions - END
 
@@ -257,6 +270,10 @@ function rsfb_plugin_settings_page() {
 	<p>&nbsp;</p>
 	<p>&nbsp;</p>
 
+	<p><strong><a href="http://www.redsandmarketing.com/rs-feedburner-donate/" target="_blank" ><?php _e( 'Donate to RS FeedBurner', RSFB_PLUGIN_NAME ); ?></a></strong><br />
+	<?php echo __( 'RS FeedBurner is provided for free.', RSFB_PLUGIN_NAME ) . ' ' . __( 'If you like the plugin, consider a donation to help further its development.', RSFB_PLUGIN_NAME ); ?></p>
+	<p>&nbsp;</p>
+
 	<p><strong><?php _e( 'Check out our other plugins:', RSFB_PLUGIN_NAME ); ?></strong></p>
 	<p><?php _e( 'If you like RS FeedBurner, you might want to check out our other plugins:', RSFB_PLUGIN_NAME ); ?></p>
 	<ul style="list-style-type:disc;padding-left:30px;">
@@ -265,6 +282,50 @@ function rsfb_plugin_settings_page() {
 		<li><a href="http://www.redsandmarketing.com/plugins/scrapebreaker/" target="_blank" ><?php echo 'ScrapeBreaker'; ?></a> <?php _e( 'A combination of frame-breaker and scraper protection. Protect your website content from both frames and server-side scraping techniques.', RSFB_PLUGIN_NAME ); ?></li>
 	</ul>
 	<p>&nbsp;</p>
+	
+	<?php
+	// Recommend Partners - BEGIN - Added in 1.4
+	if ( rsfb_is_lang_en_us() ) {
+	?>
+	
+	<div style='width:647px;border-style:solid;border-width:1px;border-color:#333333;background-color:#FEFEFE;padding:0px 15px 0px 15px;'><p><strong>Recommended Partners</strong></p>
+	<p>Each of these products or services are ones that we highly recommend, based on our experience and the experience of our clients. We do receive a commission if you purchase one of these, but these are all products and services we were already recommending because we believe in them. By purchasing from these providers, you get quality and you help support the further development of RS FeedBurner.</p>
+	</div>
+
+	<div style="width:300px;height:300px;border-style:solid;border-width:1px;border-color:#333333;background-color:#FEFEFE;padding:0px 15px 0px 15px;margin-top:15px;margin-right:15px;float:left;clear:left;">
+	<p><strong><a href="http://bit.ly/RSM_Hostgator" target="_blank" >Hostgator Website Hosting</a></strong></p>
+	<p><strong>Affordable, high quality web hosting. Great for WordPress and a variety of web applications.</strong></p>
+	<p>Hostgator has variety of affordable plans, reliable service, and customer support. Even on shared hosting, you get fast servers that are well-configured. Hostgator provides great balance of value and quality, which is why we recommend them.</p>
+	<p><a href="http://bit.ly/RSM_Hostgator"target="_blank" >Click here to find out more. >></a></p>
+	</div>
+
+	<div style="width:300px;height:300px;border-style:solid;border-width:1px;border-color:#333333;background-color:#FEFEFE;padding:0px 15px 0px 15px;margin-top:15px;margin-right:15px;float:left;">
+	<p><strong><a href="http://bit.ly/RSM_Level10" target="_blank" >Level10 Domains</a></strong></p>
+	<p><strong>Inexpensive web domains with an easy to use admin dashboard.</strong></p>
+	<p>Level10 Domains offers some of the best prices you'll find on web domain purchasing. The dashboard provides an easy way to manage your domains.</p>
+	<p><a href="http://bit.ly/RSM_Level10" target="_blank" >Click here to find out more. >></a></p>
+	</div>
+
+	<div style="width:300px;height:300px;border-style:solid;border-width:1px;border-color:#333333;background-color:#FEFEFE;padding:0px 15px 0px 15px;margin-top:15px;margin-right:15px;float:left;clear:left;">
+	<p><strong><a href="http://bit.ly/RSM_Genesis" target="_blank" >Genesis WordPress Framework</a></strong></p>
+	<p><strong>Other themes and frameworks have nothing on Genesis. Optimized for site speed and SEO.</strong></p>
+	<p>Simply put, the Genesis framework is one of the best ways to design and build a WordPress site. Built-in SEO and optimized for speed. Create just about any kind of design with child themes.</p>
+	<p><a href="http://bit.ly/RSM_Genesis" target="_blank" >Click here to find out more. >></a></p>
+	</div>
+
+	<div style="width:300px;height:300px;border-style:solid;border-width:1px;border-color:#333333;background-color:#FEFEFE;padding:0px 15px 0px 15px;margin-top:15px;margin-right:15px;float:left;">
+	<p><strong><a href="http://bit.ly/RSM_AIOSEOP" target="_blank" >All in One SEO Pack Pro</a></strong></p>
+	<p><strong>The best way to manage the code-related SEO for your WordPress site.</strong></p>
+	<p>Save time and effort optimizing the code of your WordPress site with All in One SEO Pack. One of the top rated, and most downloaded plugins on WordPress.org, this time-saving plugin is incredibly valuable. The pro version provides powerful features not available in the free version.</p>
+	<p><a href="http://bit.ly/RSM_AIOSEOP" target="_blank" >Click here to find out more. >></a></p>
+	</div>
+
+	<p style="clear:both;">&nbsp;</p>
+
+	<?php
+		}
+	// Recommend Partners - END - Added in 1.4
+	?>
 
 	</div>
 	<?php

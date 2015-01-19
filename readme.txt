@@ -2,7 +2,7 @@
 Contributors: RedSand
 Donate link: http://www.redsandmarketing.com/rs-feedburner-donate/
 Tags: feedburner, feed, feeds, redirect, redirects, rss, seo, subscribe, subscribers, subscription, comments
-Requires at least: 3.6
+Requires at least: 3.7
 Tested up to: 4.1
 Stable tag: trunk
 
@@ -68,6 +68,12 @@ For more info and full documentation, visit the [RS Feedburner homepage](http://
 You are good to go...it's that easy.
 
 == Changelog ==
+
+Version 1.4, *released 01/19/15*
+
+* Increased minimum required WordPress version to 3.7.
+* Updated .pot file.
+* Added recommended partners and donate link on settings page.
 
 Version 1.3, *released 12/18/14*
 

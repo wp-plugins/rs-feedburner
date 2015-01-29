@@ -69,8 +69,9 @@ You are good to go...it's that easy.
 
 == Changelog ==
 
-Version 1.4.1, *released 01/29/15*
+Version 1.4.2, *released 01/29/15*
 
+* Fixed a bug.
 * Made various minor code improvements.
 
 Version 1.4, *released 01/19/15*

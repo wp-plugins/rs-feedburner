@@ -4,7 +4,7 @@ Plugin Name: RS FeedBurner
 Plugin URI: http://www.redsandmarketing.com/plugins/rs-feedburner/
 Description: This plugin detects native WordPress feeds and redirects them to your FeedBurner feed so you can track your subscribers. 
 Author: Scott Allen
-Version: 1.4.1
+Version: 1.4.2
 Author URI: http://www.redsandmarketing.com/
 Text Domain: rs-feedburner
 License: GPLv2
@@ -41,7 +41,7 @@ if ( !function_exists( 'add_action' ) ) {
 	die('ERROR: This plugin requires WordPress and will not function if called directly.');
 	}
 
-define( 'RSFB_VERSION', '1.4.1' );
+define( 'RSFB_VERSION', '1.4.2' );
 define( 'RSFB_REQUIRED_WP_VERSION', '3.7' );
 // Constants prefixed with 'RSMP_' are shared with other RSM Plugins for efficiency.
 if ( !defined( 'RSFB_DEBUG' ) ) 				{ define( 'RSFB_DEBUG', false ); } // Do not change value unless developer asks you to - for debugging only. Change in wp-config.php.
@@ -165,6 +165,10 @@ function rsfb_is_lang_en_us( $strict = true ) {
 		}
 	return $lang_en_us;
 	}
+function rsfb_doc_txt() {
+	$doc_txt = __( 'Documentation', RSFB_PLUGIN_NAME );
+	return $doc_txt;
+	}
 // Standard Functions - END
 
 // Admin Functions - BEGIN
@@ -218,10 +222,10 @@ function rsfb_filter_plugin_meta( $links, $file ) {
 	if ( $file == RSFB_PLUGIN_BASENAME ){
 		// after other links
 		//$links[] = '<a href="options-general.php?page='.RSFB_PLUGIN_NAME.'">' . __('Settings') . '</a>';
-		$links[] = '<a href="http://www.redsandmarketing.com/plugins/rs-feedburner/" target="_blank" rel="external" >' . spamshield_doc_txt() . '</a>';
-		$links[] = '<a href="http://www.redsandmarketing.com/plugins/wordpress-plugin-support/" target="_blank" rel="external" >' . __( 'Support', WPSS_PLUGIN_NAME ) . '</a>';
-		$links[] = '<a href="https://wordpress.org/support/view/plugin-reviews/rs-feedburner?rate=5#postform" target="_blank" rel="external" >' . __( 'Rate the Plugin', WPSS_PLUGIN_NAME ) . '</a>';
-		$links[] = '<a href="http://bit.ly/rs-feedburner-donate" target="_blank" rel="external" >' . __( 'Donate', WPSS_PLUGIN_NAME ) . '</a>';
+		$links[] = '<a href="http://www.redsandmarketing.com/plugins/rs-feedburner/" target="_blank" rel="external" >' . rsfb_doc_txt() . '</a>';
+		$links[] = '<a href="http://www.redsandmarketing.com/plugins/wordpress-plugin-support/" target="_blank" rel="external" >' . __( 'Support', RSFB_PLUGIN_NAME ) . '</a>';
+		$links[] = '<a href="https://wordpress.org/support/view/plugin-reviews/rs-feedburner?rate=5#postform" target="_blank" rel="external" >' . __( 'Rate the Plugin', RSFB_PLUGIN_NAME ) . '</a>';
+		$links[] = '<a href="http://bit.ly/rs-feedburner-donate" target="_blank" rel="external" >' . __( 'Donate', RSFB_PLUGIN_NAME ) . '</a>';
 		}
 	return $links;
 	}

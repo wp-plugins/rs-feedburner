@@ -69,6 +69,10 @@ You are good to go...it's that easy.
 
 == Changelog ==
 
+Version 1.4.1, *released 01/29/15*
+
+* Made various minor code improvements.
+
 Version 1.4, *released 01/19/15*
 
 * Increased minimum required WordPress version to 3.7.

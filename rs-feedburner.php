@@ -4,7 +4,7 @@ Plugin Name: RS FeedBurner
 Plugin URI: http://www.redsandmarketing.com/plugins/rs-feedburner/
 Description: This plugin detects native WordPress feeds and redirects them to your FeedBurner feed so you can track your subscribers. 
 Author: Scott Allen
-Version: 1.4.2
+Version: 1.4.3
 Author URI: http://www.redsandmarketing.com/
 Text Domain: rs-feedburner
 License: GPLv2
@@ -41,7 +41,7 @@ if ( !function_exists( 'add_action' ) ) {
 	die('ERROR: This plugin requires WordPress and will not function if called directly.');
 	}
 
-define( 'RSFB_VERSION', '1.4.2' );
+define( 'RSFB_VERSION', '1.4.3' );
 define( 'RSFB_REQUIRED_WP_VERSION', '3.7' );
 // Constants prefixed with 'RSMP_' are shared with other RSM Plugins for efficiency.
 if ( !defined( 'RSFB_DEBUG' ) ) 				{ define( 'RSFB_DEBUG', false ); } // Do not change value unless developer asks you to - for debugging only. Change in wp-config.php.
@@ -62,7 +62,9 @@ if ( !defined( 'RSMP_SERVER_NAME' ) ) 			{ define( 'RSMP_SERVER_NAME', rsfb_get_
 if ( !defined( 'RSMP_BLOG_NAME' ) ) 			{ define( 'RSMP_BLOG_NAME', get_bloginfo('name') ); }									// Blog Name
 
 $rsfb_flash = '';
-$rsfb_feedburner_settings = get_option('rs_feedburner_settings');
+$rsfb_feedburner_settings		= get_option('rs_feedburner_settings');
+$rsfb_feedburner_main_url		= trim( $rsfb_feedburner_settings['rs_feedburner_url'] );
+$rsfb_feedburner_comments_url	= trim( $rsfb_feedburner_settings['rs_feedburner_comments_url'] );
 
 function rsfb_is_hash_valid($form_hash) {
 	$ret = false;
@@ -86,20 +88,18 @@ function rsfb_retrieve_hash() {
 	}
 
 function rsfb_feed_redirect() {
-	global $wp, $rsfb_feedburner_settings, $feed, $withcomments;
+	global $wp, $rsfb_feedburner_settings, $rsfb_feedburner_main_url, $rsfb_feedburner_comments_url, $feed, $withcomments;
 	$rsfb_query_vars = '';
 	if ( !empty( $wp->query_vars['category_name'] ) ) {
 		$rsfb_query_vars = $wp->query_vars['category_name'];
 		}
-	$rsfb_feedburner_main_url 		= trim( $rsfb_feedburner_settings['rs_feedburner_url'] );
-	$rsfb_feedburner_comments_url	= trim( $rsfb_feedburner_settings['rs_feedburner_comments_url'] );
-	if ( is_feed() && $feed != 'comments-rss2' && !is_single() && $rsfb_query_vars == '' && ( $withcomments != 1 ) && $rsfb_feedburner_main_url != '' ) {
+	if ( is_feed() && $feed != 'comments-rss2' && !is_single() && $rsfb_query_vars == '' && ( $withcomments != 1 ) && !empty($rsfb_feedburner_main_url) && strpos($rsfb_feedburner_main_url,'http')===0 ) {
 		if (function_exists('status_header')) { status_header( 302 ); }
 		header("Location:" . $rsfb_feedburner_main_url );
 		header("HTTP/1.1 302 Temporary Redirect");
 		exit();
 		} 
-	elseif ( is_feed() && ( $feed == 'comments-rss2' || $withcomments == 1 ) && $rsfb_feedburner_comments_url != '' ) {
+	elseif ( is_feed() && ( $feed == 'comments-rss2' || $withcomments == 1 ) && !empty($rsfb_feedburner_comments_url) && strpos($rsfb_feedburner_comments_url,'http')===0 ) {
 		if (function_exists('status_header')) { status_header( 302 ); }
 		header("Location:" . $rsfb_feedburner_comments_url );
 		header("HTTP/1.1 302 Temporary Redirect");
@@ -109,23 +109,23 @@ function rsfb_feed_redirect() {
 
 function rsfb_check_url() {
 	if ( is_feed() ) {
-		global $rsfb_feedburner_settings;
+		global $rsfb_feedburner_settings, $rsfb_feedburner_main_url, $rsfb_feedburner_comments_url;
 		switch (basename($_SERVER['PHP_SELF'])) {
 			case 'wp-rss.php':
 			case 'wp-rss2.php':
 			case 'wp-atom.php':
 			case 'wp-rdf.php':
-				if (trim($rsfb_feedburner_settings['rs_feedburner_url']) != '') {
+				if (!empty($rsfb_feedburner_main_url) && strpos($rsfb_feedburner_main_url,'http')===0) {
 					if (function_exists('status_header')) status_header( 302 );
-					header("Location:".trim($rsfb_feedburner_settings['rs_feedburner_url']));
+					header("Location:".$rsfb_feedburner_main_url);
 					header("HTTP/1.1 302 Temporary Redirect");
 					exit();
 					}
 				break;
 			case 'wp-commentsrss2.php':
-				if (trim($rsfb_feedburner_settings['rs_feedburner_comments_url']) != '') {
+				if (!empty($rsfb_feedburner_comments_url) && strpos($rsfb_feedburner_comments_url,'http')===0) {
 					if (function_exists('status_header')) status_header( 302 );
-					header("Location:".trim($rsfb_feedburner_settings['rs_feedburner_comments_url']));
+					header("Location:".$rsfb_feedburner_comments_url);
 					header("HTTP/1.1 302 Temporary Redirect");
 					exit();
 					}
@@ -144,6 +144,22 @@ add_filter( 'plugin_action_links', 'rsfb_filter_plugin_actions', 10, 2 );
 add_filter( 'plugin_row_meta', 'rsfb_filter_plugin_meta', 10, 2 ); // Added 1.4.1
 
 // Standard Functions - BEGIN
+function rsfb_fix_url( $url, $rem_frag = false, $rem_query = false, $rev = false ) {
+	// Fix poorly formed URLs so as not to throw errors or cause problems
+	// Too many forward slashes or colons after http
+	$url = preg_replace( "~^(https?)\:+/+~i", "$1://", $url);
+	// Too many dots
+	$url = preg_replace( "~\.+~i", ".", $url);
+	// Too many slashes after the domain
+	$url = preg_replace( "~([a-z0-9]+)/+([a-z0-9]+)~i", "$1/$2", $url);
+	// Remove fragments
+	if ( !empty( $rem_frag ) && strpos( $url, '#' ) !== false ) { $url_arr = explode( '#', $query ); $url = $url_arr[0]; }
+	// Remove query string completely
+	if ( !empty( $rem_query ) && strpos( $url, '?' ) !== false ) { $url_arr = explode( '?', $query ); $url = $url_arr[0]; }
+	// Reverse
+	if ( !empty( $rev ) ) { $url = strrev($url); }
+	return $url;
+	}
 function rsfb_get_server_addr() {
 	if ( !empty( $_SERVER['SERVER_ADDR'] ) ) { $server_addr = $_SERVER['SERVER_ADDR']; } else { $server_addr = getenv('SERVER_ADDR'); }
 	return $server_addr;
@@ -172,12 +188,9 @@ function rsfb_doc_txt() {
 // Standard Functions - END
 
 // Admin Functions - BEGIN
-register_activation_hook( __FILE__, 'rsfb_install_on_first_activation' );
-function rsfb_install_on_first_activation() {
-	$installed_ver = get_option('rs_feedburner_version');
-	if ( empty( $installed_ver ) || $installed_ver != RSFB_VERSION ) {
-		update_option('rs_feedburner_version', RSFB_VERSION);
-		}
+register_activation_hook( __FILE__, 'rsfb_activation' );
+function rsfb_activation() {
+	rsfb_upgrade_check();
 	}
 add_action( 'admin_init', 'rsfb_check_version' );
 function rsfb_check_version() {
@@ -204,6 +217,10 @@ function rsfb_admin_notices() {
 		echo '<div class="'.$style.'"><p>'.$notice.'</p></div>';
 		}
 	delete_option('rsfb_admin_notices');
+	}
+function rsfb_upgrade_check( $installed_ver = null ) {
+	if ( empty( $installed_ver ) ) { $installed_ver = get_option('rs_feedburner_version'); }
+	if ( $installed_ver != RSFB_VERSION ) { update_option('rs_feedburner_version', RSFB_VERSION); }
 	}
 add_action( 'plugins_loaded', 'rsfb_load_languages' );
 function rsfb_load_languages() {
@@ -241,32 +258,60 @@ function rsfb_plugin_settings_page() {
 		wp_die( $restricted_area_warning );
 		}
 		
-	global $rsfb_flash, $rsfb_feedburner_settings, $_POST, $wp_rewrite;
+	global $rsfb_flash, $rsfb_feedburner_settings, $rsfb_feedburner_main_url, $rsfb_feedburner_comments_url, $_POST, $wp_rewrite;
 	if ( current_user_can('manage_options') ) {
+		rsfb_upgrade_check();
 		// Test to see if we have been submitted to
 		if(isset($_POST['rs_feedburner_url']) || isset($_POST['rs_feedburner_comments_url'])) {
 			// Now we check the hash, to make sure we are not getting CSRF
+			$rsfb_error = 0;
 			if(rsfb_is_hash_valid($_POST['rs_token'])) {
+				$rsfb_flash_settings_saved	= __( 'Your settings have been saved.', RSFB_PLUGIN_NAME );
+				$rsfb_flash_feed_url_error	= __( 'Invalid value.', RSFB_PLUGIN_NAME ) . ' ' . __( 'Please enter a valid URL.', RSFB_PLUGIN_NAME ) . ' ' . __( 'Your settings have not been saved.', RSFB_PLUGIN_NAME );
 				if (isset($_POST['rs_feedburner_url'])) { 
-					$rsfb_feedburner_settings['rs_feedburner_url'] = $_POST['rs_feedburner_url'];
-					update_option('rs_feedburner_settings',$rsfb_feedburner_settings);
-					$rsfb_flash = __( 'Your settings have been saved.', RSFB_PLUGIN_NAME );
+					// Validate
+					$rsfb_url = rsfb_fix_url( trim($_POST['rs_feedburner_url']) );
+					//if ( ( !preg_match( "~^https?\://~i", $rsfb_url ) || filter_var( $rsfb_url, FILTER_VALIDATE_URL ) === FALSE  ) && !empty( $rsfb_url ) ) {
+					if ( !preg_match( "~^https?\://~i", $rsfb_url ) && !empty( $rsfb_url ) ) {
+						$rsfb_flash 		= $rsfb_flash_feed_url_error;
+						$rsfb_flash_style	= 'error';
+						$rsfb_error = 1;
+						}
+					else {
+						$rsfb_feedburner_settings['rs_feedburner_url'] = esc_url_raw( $rsfb_url );
+						update_option('rs_feedburner_settings',$rsfb_feedburner_settings);
+						$rsfb_flash 		= $rsfb_flash_settings_saved;
+						$rsfb_flash_style	= 'updated';
+						}
 					}
-				if (isset($_POST['rs_feedburner_comments_url'])) { 
-					$rsfb_feedburner_settings['rs_feedburner_comments_url'] = $_POST['rs_feedburner_comments_url'];
-					update_option('rs_feedburner_settings',$rsfb_feedburner_settings);
-					$rsfb_flash = __( 'Your settings have been saved.', RSFB_PLUGIN_NAME );
+				if (isset($_POST['rs_feedburner_comments_url'])&&empty($rsfb_error)) {
+					// Validate
+					$rsfb_comments_url = rsfb_fix_url( trim($_POST['rs_feedburner_comments_url']) );
+					//if ( ( !preg_match( "~^https?\://~i", $rsfb_comments_url ) || filter_var( $rsfb_comments_url, FILTER_VALIDATE_URL ) === FALSE ) && !empty( $rsfb_comments_url ) ) {
+					if ( !preg_match( "~^https?\://~i", $rsfb_comments_url ) && !empty( $rsfb_comments_url ) ) {
+						$rsfb_flash 		= $rsfb_flash_feed_url_error;
+						$rsfb_flash_style	= 'error';
+						$rsfb_error = 1;
+						}
+					else {
+						$rsfb_feedburner_settings['rs_feedburner_comments_url'] = esc_url_raw( $rsfb_comments_url );
+						update_option('rs_feedburner_settings',$rsfb_feedburner_settings);
+						$rsfb_flash			= $rsfb_flash_settings_saved;
+						$rsfb_flash_style	= 'updated';
+						}
 					} 
 				} else {
 				// Invalid form hash, possible CSRF attempt
-				$rsfb_flash = __( 'There was an error with your request.', RSFB_PLUGIN_NAME );
+				$rsfb_flash			= __( 'There was an error with your request.', RSFB_PLUGIN_NAME );
+				$rsfb_flash_style	= 'error';
 				} 
 			}
 		} else {
-		$rsfb_flash = __( 'You do not have sufficient access rights.', RSFB_PLUGIN_NAME );
+		$rsfb_flash			= __( 'You do not have sufficient access rights.', RSFB_PLUGIN_NAME );
+		$rsfb_flash_style	= 'error';
 		}
 	
-	if ($rsfb_flash != '') echo '<div id="message"class="updated fade"><p>' . $rsfb_flash . '</p></div>';
+	if ( !empty( $rsfb_flash ) ) { echo '<div id="message" class="'.$rsfb_flash_style.' fade"><p>' . $rsfb_flash . '</p></div>'; }
 	
 	$rsfb_temp_hash = rsfb_generate_hash();
 	rsfb_store_hash($rsfb_temp_hash);
@@ -301,26 +346,13 @@ function rsfb_plugin_settings_page() {
 	<p>&nbsp;</p>
 	
 	<?php
-	// Recommended Partners - BEGIN - Added in 1.4
+	// Recommended Partners - BEGIN
+	// Added in 1.4
 	if ( rsfb_is_lang_en_us() ) {
 	?>
 	
 	<div style='width:647px;border-style:solid;border-width:1px;border-color:#333333;background-color:#FEFEFE;padding:0px 15px 0px 15px;'><p><strong>Recommended Partners</strong></p>
 	<p>Each of these products or services are ones that we highly recommend, based on our experience and the experience of our clients. We do receive a commission if you purchase one of these, but these are all products and services we were already recommending because we believe in them. By purchasing from these providers, you get quality and you help support the further development of RS FeedBurner.</p>
-	</div>
-
-	<div style="width:300px;height:300px;border-style:solid;border-width:1px;border-color:#333333;background-color:#FEFEFE;padding:0px 15px 0px 15px;margin-top:15px;margin-right:15px;float:left;clear:left;">
-	<p><strong><a href="http://bit.ly/RSM_Hostgator" target="_blank" rel="external" >Hostgator Website Hosting</a></strong></p>
-	<p><strong>Affordable, high quality web hosting. Great for WordPress and a variety of web applications.</strong></p>
-	<p>Hostgator has variety of affordable plans, reliable service, and customer support. Even on shared hosting, you get fast servers that are well-configured. Hostgator provides great balance of value and quality, which is why we recommend them.</p>
-	<p><a href="http://bit.ly/RSM_Hostgator"target="_blank" >Click here to find out more. >></a></p>
-	</div>
-
-	<div style="width:300px;height:300px;border-style:solid;border-width:1px;border-color:#333333;background-color:#FEFEFE;padding:0px 15px 0px 15px;margin-top:15px;margin-right:15px;float:left;">
-	<p><strong><a href="http://bit.ly/RSM_Level10" target="_blank" rel="external" >Level10 Domains</a></strong></p>
-	<p><strong>Inexpensive web domains with an easy to use admin dashboard.</strong></p>
-	<p>Level10 Domains offers some of the best prices you'll find on web domain purchasing. The dashboard provides an easy way to manage your domains.</p>
-	<p><a href="http://bit.ly/RSM_Level10" target="_blank" rel="external" >Click here to find out more. >></a></p>
 	</div>
 
 	<div style="width:300px;height:300px;border-style:solid;border-width:1px;border-color:#333333;background-color:#FEFEFE;padding:0px 15px 0px 15px;margin-top:15px;margin-right:15px;float:left;clear:left;">
@@ -337,11 +369,25 @@ function rsfb_plugin_settings_page() {
 	<p><a href="http://bit.ly/RSM_AIOSEOP" target="_blank" rel="external" >Click here to find out more. >></a></p>
 	</div>
 
+	<div style="width:300px;height:300px;border-style:solid;border-width:1px;border-color:#333333;background-color:#FEFEFE;padding:0px 15px 0px 15px;margin-top:15px;margin-right:15px;float:left;clear:left;">
+	<p><strong><a href="http://bit.ly/RSM_Hostgator" target="_blank" rel="external" >Hostgator Website Hosting</a></strong></p>
+	<p><strong>Affordable, high quality web hosting. Great for WordPress and a variety of web applications.</strong></p>
+	<p>Hostgator has variety of affordable plans, reliable service, and customer support. Even on shared hosting, you get fast servers that are well-configured. Hostgator provides great balance of value and quality, which is why we recommend them.</p>
+	<p><a href="http://bit.ly/RSM_Hostgator"target="_blank" >Click here to find out more. >></a></p>
+	</div>
+
+	<div style="width:300px;height:300px;border-style:solid;border-width:1px;border-color:#333333;background-color:#FEFEFE;padding:0px 15px 0px 15px;margin-top:15px;margin-right:15px;float:left;">
+	<p><strong><a href="http://bit.ly/RSM_Level10" target="_blank" rel="external" >Level10 Domains</a></strong></p>
+	<p><strong>Inexpensive web domains with an easy to use admin dashboard.</strong></p>
+	<p>Level10 Domains offers some of the best prices you'll find on web domain purchasing. The dashboard provides an easy way to manage your domains.</p>
+	<p><a href="http://bit.ly/RSM_Level10" target="_blank" rel="external" >Click here to find out more. >></a></p>
+	</div>
+
 	<p style="clear:both;">&nbsp;</p>
 
 	<?php
 		}
-	// Recommended Partners - END - Added in 1.4
+	// Recommended Partners - END
 	?>
 
 	</div>

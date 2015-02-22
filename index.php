@@ -1,12 +1,10 @@
 <?php
 /*
 RS FeedBurner - index.php
-Version: 1.2
-*/
+Version: 1.4.3
 
-// This page keeps search engines, bots, and unwanted visitors from viewing your private plugin directory contents.
-
-/* 
+This script keeps search engines, bots, and unwanted visitors from viewing your private plugin directory contents.
+ 
 You can avoid the need for pages like this by adding a single line of code to the beginning of your .htaccess file:
 	## Add the following line to the beginning of your .htaccess for security and SEO.
 	Options All -Indexes

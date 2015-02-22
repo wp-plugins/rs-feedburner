@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: RS FeedBurner\n"
 "POT-Creation-Date: 2014-12-16 19:00-0800\n"
-"PO-Revision-Date: 2015-01-19 15:00-0800\n"
+"PO-Revision-Date: 2015-02-21 15:00-0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -12,104 +12,113 @@ msgstr ""
 "X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_c\n"
 "X-Poedit-Basepath: ..\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.7.1\n"
+"X-Generator: Poedit 1.7.4\n"
 "X-Poedit-SearchPath-0: rs-feedburner\n"
 
-#: rs-feedburner.php:185
+#: rs-feedburner.php:203
 #, php-format
 msgid ""
-"Plugin deactivated. WordPress Version %s required. Please upgrade WordPress "
-"to the latest version."
+"Plugin deactivated. WordPress Version %s required. Please upgrade WordPress to "
+"the latest version."
 msgstr ""
 
-#: rs-feedburner.php:236 rs-feedburner.php:241
+#: rs-feedburner.php:269
 msgid "Your settings have been saved."
 msgstr ""
 
-#: rs-feedburner.php:245
+#: rs-feedburner.php:270
+msgid "Your settings have not been saved."
+msgstr ""
+
+#: rs-feedburner.php:270
+msgid "Invalid value."
+msgstr ""
+
+#: rs-feedburner.php:270
+msgid "Please enter a valid URL."
+msgstr ""
+
+#: rs-feedburner.php:303
 msgid "There was an error with your request."
 msgstr ""
 
-#: rs-feedburner.php:249
+#: rs-feedburner.php:308
 msgid "You do not have sufficient access rights."
 msgstr ""
 
-#: rs-feedburner.php:259
+#: rs-feedburner.php:319
 msgid ""
-"This plugin helps you redirect all inbound traffic for your feeds to your "
-"custom FeedBurner feed.<br />FeedBurner tracks all your feed subscriber "
-"traffic and usage and enhances your original WordPress feed."
+"This plugin helps you redirect all inbound traffic for your feeds to your custom "
+"FeedBurner feed.<br />FeedBurner tracks all your feed subscriber traffic and "
+"usage and enhances your original WordPress feed."
 msgstr ""
 
-#: rs-feedburner.php:264
+#: rs-feedburner.php:324
 #, php-format
 msgid ""
-"If you haven't done so already, <a href=\"http://feedburner.google.com/\" "
-"target=\"_blank\">create a FeedBurner feed for %s</a>. This feed will handle "
-"all traffic for your posts."
+"If you haven't done so already, <a href=\"http://feedburner.google.com/\" target="
+"\"_blank\">create a FeedBurner feed for %s</a>. This feed will handle all traffic "
+"for your posts."
 msgstr ""
 
-#: rs-feedburner.php:265
+#: rs-feedburner.php:325
 msgid ""
 "Once you have created your FeedBurner feed, enter its address into the field "
 "below (<strong>http://feeds.feedburner.com/YourFeed</strong>):"
 msgstr ""
 
-#: rs-feedburner.php:266
+#: rs-feedburner.php:326
 msgid ""
-"Optional: If you also want to use FeedBurner for your WordPress comments "
-"feed, <a href=\"http://feedburner.google.com/\" target=\"_blank\">create a "
-"FeedBurner comments feed</a> and then enter its address below:"
+"Optional: If you also want to use FeedBurner for your WordPress comments feed, <a "
+"href=\"http://feedburner.google.com/\" target=\"_blank\">create a FeedBurner "
+"comments feed</a> and then enter its address below:"
 msgstr ""
 
-#: rs-feedburner.php:273
+#: rs-feedburner.php:333
 msgid "Donate to RS FeedBurner"
 msgstr ""
 
-#: rs-feedburner.php:274
+#: rs-feedburner.php:334
 msgid "RS FeedBurner is provided for free."
 msgstr ""
 
-#: rs-feedburner.php:274
+#: rs-feedburner.php:334
 msgid "If you like the plugin, consider a donation to help further its development."
 msgstr ""
 
-#: rs-feedburner.php:277
+#: rs-feedburner.php:337
 msgid "Check out our other plugins:"
 msgstr ""
 
-#: rs-feedburner.php:278
-msgid ""
-"If you like RS FeedBurner, you might want to check out our other "
-"plugins:"
+#: rs-feedburner.php:338
+msgid "If you like RS FeedBurner, you might want to check out our other plugins:"
 msgstr ""
 
-#: rs-feedburner.php:280
+#: rs-feedburner.php:340
 msgid "Anti-Spam"
 msgstr ""
 
-#: rs-feedburner.php:280
+#: rs-feedburner.php:340
 msgid ""
-"An extremely powerful and user friendly WordPress anti-spam plugin that "
-"stops blog comment spam cold, including trackback and pingback spam. "
-"Includes spam-blocking contact form feature, and protection from user "
-"registration spam as well. WP-SpamShield is an all-in-one spam solution "
-"for WordPress. See what it's like to run a WordPress site without spam!"
+"An extremely powerful and user friendly WordPress anti-spam plugin that stops "
+"blog comment spam cold, including trackback and pingback spam. Includes spam-"
+"blocking contact form feature, and protection from user registration spam as "
+"well. WP-SpamShield is an all-in-one spam solution for WordPress. See what it's "
+"like to run a WordPress site without spam!"
 msgstr ""
 
-#: rs-feedburner.php:281
+#: rs-feedburner.php:341
 msgid ""
-"This plugin cleans up a number of issues, doing the work of multiple "
-"plugins, improving speed, efficiency, security, SEO, and user "
-"experience. It removes junk code from the HEAD & HTTP headers, moves "
-"JavaScript from header to footer, combines/minifies/caches CSS & "
-"JavaScript files, hides the Generator/WordPress Version number, "
-"removes version numbers from CSS and JS links, and fixes the \"Read "
-"more\" link so it displays the entire post."
+"This plugin cleans up a number of issues, doing the work of multiple plugins, "
+"improving speed, efficiency, security, SEO, and user experience. It removes junk "
+"code from the HEAD & HTTP headers, moves JavaScript from header to footer, "
+"combines/minifies/caches CSS & JavaScript files, hides the Generator/WordPress "
+"Version number, removes version numbers from CSS and JS links, and fixes the "
+"\"Read more\" link so it displays the entire post."
 msgstr ""
 
-#: rs-feedburner.php:282
+#: rs-feedburner.php:342
 msgid ""
-"A combination of frame-breaker and scraper protection. Protect your "
-"website content from both frames and server-side scraping techniques."
+"A combination of frame-breaker and scraper protection. Protect your website "
+"content from both frames and server-side scraping techniques."
 msgstr ""

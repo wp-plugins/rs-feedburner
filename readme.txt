@@ -1,7 +1,7 @@
 === RS FeedBurner ===
 Contributors: RedSand
 Donate link: http://www.redsandmarketing.com/rs-feedburner-donate/
-Tags: feedburner, feed, feeds, feedsmith, redirect, redirects, rss, seo, subscribe, subscribers, subscription, comments 
+Tags: feedburner, feed, feeds, feedsmith, redirect, redirects, rss, seo, subscribe, subscribers, subscription, comments
 Requires at least: 3.7
 Tested up to: 4.1
 Stable tag: trunk
@@ -10,7 +10,7 @@ This plugin detects native WordPress feeds and redirects them to your FeedBurner
 
 == Description == 
 
-This plugin redirects all requests for your native WordPress feeds to your Feedburner feeds so you can track all your subscribers and maximize your blog/site readership and user engagement.
+This plugin redirects all requests for your native WordPress feeds to your FeedBurner feeds so you can track all your subscribers and maximize your blog/site readership and user engagement.
 
 You can redirect both your main WordPress feed and your comments feed if you like. (Comments feed is optional since not everyone uses it.)
 
@@ -22,10 +22,10 @@ Features:
 * Fast
 * Compatible
 
-One of the **easiest** ways to implement your Feedburner feed on your WordPress site. *It just works.*
+One of the **easiest** ways to implement your FeedBurner feed on your WordPress site. *It just works.*
 
 = More Info / Documentation =
-For more info and full documentation, visit the [RS Feedburner homepage](http://www.redsandmarketing.com/plugins/rs-feedburner/ "RS Feedburner homepage").
+For more info and full documentation, visit the [RS FeedBurner homepage](http://www.redsandmarketing.com/plugins/rs-feedburner/ "RS FeedBurner homepage").
 
 == Installation ==
 
@@ -35,7 +35,7 @@ For more info and full documentation, visit the [RS Feedburner homepage](http://
 
 1. Go to *Plugins* -> *Add New*.
 
-2. Type *RS Feedburner* into the Search box, and click *Search Plugins*.
+2. Type *RS FeedBurner* into the Search box, and click *Search Plugins*.
 
 3. When the results are displayed, click *Install Now*.
 
@@ -61,9 +61,9 @@ For more info and full documentation, visit the [RS Feedburner homepage](http://
 
 = Next Steps After Installation = 
 
-1. Go to the options page and enter the URL of your Feedburner feed, and click *Save Settings*.
+1. Go to the options page and enter the URL of your FeedBurner feed, and click *Save Settings*.
 
-2. You can optionally enter your comments feed url on Feedburner if you have one setup.
+2. You can optionally enter your comments feed url on FeedBurner if you have one setup.
 
 You are good to go...it's that easy.
 
@@ -71,9 +71,9 @@ You are good to go...it's that easy.
 
 = What options do I need to fill in? =
 
-After you sign up for a Feedburner account, just fill in your Feedburner feed address, and click *Save Settings*. That's all! After that it will work.
+After you sign up for a FeedBurner account, just fill in your FeedBurner feed address, and click *Save Settings*. That's all! After that it will work.
 
-Optional: If you have a Feedburner feed setup for your comments, you can enter that as well, and your comment feed will automatically be redirected too.
+Optional: If you have a FeedBurner feed setup for your comments, you can enter that as well, and your comment feed will automatically be redirected too.
 
 = You do great work...can I hire you? =
 

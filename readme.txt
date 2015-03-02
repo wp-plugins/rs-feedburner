@@ -16,6 +16,10 @@ You can redirect both your main WordPress feed and your comments feed if you lik
 
 This plugin is a fork of the original FeedBurner Feedsmith plugin by Steve Smith. Since it was discontinued, I picked up where it left off so we all can have an actively updated plugin.
 
+= Documentation / Tech Support =
+* Documentation: [Plugin Homepage](http://www.redsandmarketing.com/plugins/rs-feedburner/)
+* Tech Support: [WordPress Plugin Support](http://www.redsandmarketing.com/plugins/wordpress-plugin-support/)
+
 Features:
 
 * Simple to use
@@ -23,6 +27,8 @@ Features:
 * Compatible
 
 One of the **easiest** ways to implement your FeedBurner feed on your WordPress site. *It just works.*
+
+Important: If you are using a caching plugin, you will need to set it to *not* cache your *feeds*. (Cache plugins usually have an "exclude" setting so you can specify which pages won't be cached.)
 
 = More Info / Documentation =
 For more info and full documentation, visit the [RS FeedBurner homepage](http://www.redsandmarketing.com/plugins/rs-feedburner/ "RS FeedBurner homepage").
@@ -81,6 +87,12 @@ Absolutely...go to my [WordPress Consulting](http://www.redsandmarketing.com/web
 
 == Changelog ==
 
+= 1.4.4 =
+*released 03/02/15*
+
+* Minor bug fix.
+* Made various minor code improvements.
+
 = 1.4.3 =
 *released 02/21/15*
 
@@ -138,7 +150,7 @@ Absolutely...go to my [WordPress Consulting](http://www.redsandmarketing.com/web
 
 * Minor code improvements.
 
-= 1.0.0.0 =
+= 1.0 =
 *released 03/09/14*
 
 * Initial release.
@@ -146,5 +158,5 @@ Absolutely...go to my [WordPress Consulting](http://www.redsandmarketing.com/web
 This plugin is a fork of the original FeedBurner Feedsmith plugin by Steve Smith. Since it was discontinued, I picked up where it left off so we all can have an actively updated plugin.
 
 == Upgrade Notice ==
-= 1.4.3 =
-Added an uninstall function to clean up data upon deleting, added validation check for feed URLs, and made various minor code improvements. Please see Changelog for details.
+= 1.4.4 =
+Minor bug fix, and made various minor code improvements. Please see Changelog for details.

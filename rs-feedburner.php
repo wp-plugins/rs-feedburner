@@ -4,7 +4,7 @@ Plugin Name: RS FeedBurner
 Plugin URI: http://www.redsandmarketing.com/plugins/rs-feedburner/
 Description: This plugin detects native WordPress feeds and redirects them to your FeedBurner feed so you can track your subscribers. 
 Author: Scott Allen
-Version: 1.4.3
+Version: 1.4.4
 Author URI: http://www.redsandmarketing.com/
 Text Domain: rs-feedburner
 License: GPLv2
@@ -41,10 +41,10 @@ if ( !function_exists( 'add_action' ) ) {
 	die('ERROR: This plugin requires WordPress and will not function if called directly.');
 	}
 
-define( 'RSFB_VERSION', '1.4.3' );
+define( 'RSFB_VERSION', '1.4.4' );
 define( 'RSFB_REQUIRED_WP_VERSION', '3.7' );
 // Constants prefixed with 'RSMP_' are shared with other RSM Plugins for efficiency.
-if ( !defined( 'RSFB_DEBUG' ) ) 				{ define( 'RSFB_DEBUG', false ); } // Do not change value unless developer asks you to - for debugging only. Change in wp-config.php.
+if ( !defined( 'RSFB_DEBUG' ) ) 				{ define( 'RSFB_DEBUG', FALSE ); } // Do not change value unless developer asks you to - for debugging only. Change in wp-config.php.
 if ( !defined( 'RSMP_SITE_URL' ) ) 				{ define( 'RSMP_SITE_URL', untrailingslashit( site_url() ) ); } 						// http://example.com
 if ( !defined( 'RSMP_PLUGINS_DIR_URL' ) ) 		{ define( 'RSMP_PLUGINS_DIR_URL', untrailingslashit( plugins_url() ) ); } 				// http://example.com/wp-content/plugins
 if ( !defined( 'RSMP_CONTENT_DIR_URL' ) ) 		{ define( 'RSMP_CONTENT_DIR_URL', untrailingslashit( content_url() ) ); } 				// http://example.com/wp-content
@@ -67,9 +67,9 @@ $rsfb_feedburner_main_url		= trim( $rsfb_feedburner_settings['rs_feedburner_url'
 $rsfb_feedburner_comments_url	= trim( $rsfb_feedburner_settings['rs_feedburner_comments_url'] );
 
 function rsfb_is_hash_valid($form_hash) {
-	$ret = false;
+	$ret = FALSE;
 	$saved_hash = rsfb_retrieve_hash();
-	if ($form_hash === $saved_hash) { $ret = true; }
+	if ($form_hash === $saved_hash) { $ret = TRUE; }
 	return $ret;
 	}
 
@@ -134,7 +134,8 @@ function rsfb_check_url() {
 		}
 	}
 
-if (!preg_match("~feedburner|feedvalidator~i", $_SERVER['HTTP_USER_AGENT'])) {
+$rsfb_user_agent_lc = rsfb_get_user_agent( TRUE, TRUE );
+if ( strpos( $rsfb_user_agent_lc, 'feedburner' ) === FALSE && strpos( $rsfb_user_agent_lc, 'feedvalidator' ) === FALSE ) {
 	add_action('template_redirect', 'rsfb_feed_redirect');
 	add_action('init','rsfb_check_url');
 	}
@@ -144,7 +145,7 @@ add_filter( 'plugin_action_links', 'rsfb_filter_plugin_actions', 10, 2 );
 add_filter( 'plugin_row_meta', 'rsfb_filter_plugin_meta', 10, 2 ); // Added 1.4.1
 
 // Standard Functions - BEGIN
-function rsfb_fix_url( $url, $rem_frag = false, $rem_query = false, $rev = false ) {
+function rsfb_fix_url( $url, $rem_frag = FALSE, $rem_query = FALSE, $rev = FALSE ) {
 	// Fix poorly formed URLs so as not to throw errors or cause problems
 	// Too many forward slashes or colons after http
 	$url = preg_replace( "~^(https?)\:+/+~i", "$1://", $url);
@@ -153,9 +154,9 @@ function rsfb_fix_url( $url, $rem_frag = false, $rem_query = false, $rev = false
 	// Too many slashes after the domain
 	$url = preg_replace( "~([a-z0-9]+)/+([a-z0-9]+)~i", "$1/$2", $url);
 	// Remove fragments
-	if ( !empty( $rem_frag ) && strpos( $url, '#' ) !== false ) { $url_arr = explode( '#', $query ); $url = $url_arr[0]; }
+	if ( !empty( $rem_frag ) && strpos( $url, '#' ) !== FALSE ) { $url_arr = explode( '#', $query ); $url = $url_arr[0]; }
 	// Remove query string completely
-	if ( !empty( $rem_query ) && strpos( $url, '?' ) !== false ) { $url_arr = explode( '?', $query ); $url = $url_arr[0]; }
+	if ( !empty( $rem_query ) && strpos( $url, '?' ) !== FALSE ) { $url_arr = explode( '?', $query ); $url = $url_arr[0]; }
 	// Reverse
 	if ( !empty( $rev ) ) { $url = strrev($url); }
 	return $url;
@@ -168,16 +169,27 @@ function rsfb_get_server_name() {
 	if ( !empty( $_SERVER['SERVER_NAME'] ) ) { $server_name = strtolower( $_SERVER['SERVER_NAME'] ); } else { $server_name = strtolower( getenv('SERVER_NAME') ); }
 	return $server_name;
 	}
-function rsfb_is_lang_en_us( $strict = true ) {
+function rsfb_get_user_agent( $raw = FALSE, $lowercase = FALSE ) {
+	// Gives User-Agent with filters
+	// If blank, gives an initialized var to eliminate need for testing if isset() everywhere
+	// Default is sanitized
+	if ( !empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+		if ( !empty ( $raw ) ) { $user_agent = $_SERVER['HTTP_USER_AGENT']; } else { $user_agent = sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] ); }
+		if ( !empty ( $lowercase ) ) { $user_agent = strtolower( $user_agent ); }
+		}
+	else { $user_agent = ''; }
+	return $user_agent;
+	}
+function rsfb_is_lang_en_us( $strict = TRUE ) {
 	// Test if site is set to use English (US) - the default - or another language/localization
 	$rsfb_locale = get_locale();
-	if ( $strict != true ) {
+	if ( $strict != TRUE ) {
 		// Not strict - English, but localized translations may be in use
-		if ( !empty( $rsfb_locale ) && !preg_match( "~^(en(_[a-z]{2})?)?$~i", $rsfb_locale ) ) { $lang_en_us = false; } else { $lang_en_us = true; }
+		if ( !empty( $rsfb_locale ) && !preg_match( "~^(en(_[a-z]{2})?)?$~i", $rsfb_locale ) ) { $lang_en_us = FALSE; } else { $lang_en_us = TRUE; }
 		}
 	else {
 		// Strict - English (US), no translation being used
-		if ( !empty( $rsfb_locale ) && !preg_match( "~^(en(_us)?)?$~i", $rsfb_locale ) ) { $lang_en_us = false; } else { $lang_en_us = true; }
+		if ( !empty( $rsfb_locale ) && !preg_match( "~^(en(_us)?)?$~i", $rsfb_locale ) ) { $lang_en_us = FALSE; } else { $lang_en_us = TRUE; }
 		}
 	return $lang_en_us;
 	}
@@ -204,7 +216,7 @@ function rsfb_check_version() {
 			$new_admin_notice = array( 'style' => 'error', 'notice' => $notice_text );
 			update_option( 'rsfb_admin_notices', $new_admin_notice );
 			add_action( 'admin_notices', 'rsfb_admin_notices' );
-			return false;
+			return FALSE;
 			}
 		add_action( 'admin_notices', 'rsfb_admin_notices' );
 		}
@@ -218,16 +230,16 @@ function rsfb_admin_notices() {
 		}
 	delete_option('rsfb_admin_notices');
 	}
-function rsfb_upgrade_check( $installed_ver = null ) {
+function rsfb_upgrade_check( $installed_ver = NULL ) {
 	if ( empty( $installed_ver ) ) { $installed_ver = get_option('rs_feedburner_version'); }
 	if ( $installed_ver != RSFB_VERSION ) { update_option('rs_feedburner_version', RSFB_VERSION); }
 	}
 add_action( 'plugins_loaded', 'rsfb_load_languages' );
 function rsfb_load_languages() {
-	load_plugin_textdomain( RSFB_PLUGIN_NAME, false, basename( dirname( __FILE__ ) ) . '/languages' );
+	load_plugin_textdomain( RSFB_PLUGIN_NAME, FALSE, basename( dirname( __FILE__ ) ) . '/languages' );
 	}
 function rsfb_filter_plugin_actions( $links, $file ) {
-	// Add "Settings" Link on Admin Plugins page, in plugin listings
+	// Add "Settings" Link on Dashboard Plugins page, in plugin listings
 	if ( $file == RSFB_PLUGIN_BASENAME ){
 		$settings_link = '<a href="options-general.php?page='.RSFB_PLUGIN_NAME.'">' . __('Settings') . '</a>';
 		array_unshift( $links, $settings_link ); // before other links
@@ -235,13 +247,13 @@ function rsfb_filter_plugin_actions( $links, $file ) {
 	return $links;
 	}
 function rsfb_filter_plugin_meta( $links, $file ) {
-	// Add "Settings" Link on Admin Plugins page, in plugin meta
+	// Add Links on Dashboard Plugins page, in plugin meta
 	if ( $file == RSFB_PLUGIN_BASENAME ){
 		// after other links
 		//$links[] = '<a href="options-general.php?page='.RSFB_PLUGIN_NAME.'">' . __('Settings') . '</a>';
 		$links[] = '<a href="http://www.redsandmarketing.com/plugins/rs-feedburner/" target="_blank" rel="external" >' . rsfb_doc_txt() . '</a>';
 		$links[] = '<a href="http://www.redsandmarketing.com/plugins/wordpress-plugin-support/" target="_blank" rel="external" >' . __( 'Support', RSFB_PLUGIN_NAME ) . '</a>';
-		$links[] = '<a href="https://wordpress.org/support/view/plugin-reviews/rs-feedburner?rate=5#postform" target="_blank" rel="external" >' . __( 'Rate the Plugin', RSFB_PLUGIN_NAME ) . '</a>';
+		$links[] = '<a href="http://bit.ly/rs-feedburner-rate" target="_blank" rel="external" >' . __( 'Rate the Plugin', RSFB_PLUGIN_NAME ) . '</a>';
 		$links[] = '<a href="http://bit.ly/rs-feedburner-donate" target="_blank" rel="external" >' . __( 'Donate', RSFB_PLUGIN_NAME ) . '</a>';
 		}
 	return $links;
@@ -351,45 +363,25 @@ function rsfb_plugin_settings_page() {
 	if ( rsfb_is_lang_en_us() ) {
 	?>
 	
-	<div style='width:647px;border-style:solid;border-width:1px;border-color:#333333;background-color:#FEFEFE;padding:0px 15px 0px 15px;'><p><strong>Recommended Partners</strong></p>
+	<div style='width:797px;border-style:solid;border-width:1px;border-color:#333333;background-color:#FEFEFE;padding:0px 15px 0px 15px;margin-top:15px;margin-right:15px;float:left;clear:left;'>
+	<p><h3>Recommended Partners</h3></p>
 	<p>Each of these products or services are ones that we highly recommend, based on our experience and the experience of our clients. We do receive a commission if you purchase one of these, but these are all products and services we were already recommending because we believe in them. By purchasing from these providers, you get quality and you help support the further development of RS FeedBurner.</p>
 	</div>
-
-	<div style="width:300px;height:300px;border-style:solid;border-width:1px;border-color:#333333;background-color:#FEFEFE;padding:0px 15px 0px 15px;margin-top:15px;margin-right:15px;float:left;clear:left;">
-	<p><strong><a href="http://bit.ly/RSM_Genesis" target="_blank" rel="external" >Genesis WordPress Framework</a></strong></p>
-	<p><strong>Other themes and frameworks have nothing on Genesis. Optimized for site speed and SEO.</strong></p>
-	<p>Simply put, the Genesis framework is one of the best ways to design and build a WordPress site. Built-in SEO and optimized for speed. Create just about any kind of design with child themes.</p>
-	<p><a href="http://bit.ly/RSM_Genesis" target="_blank" rel="external" >Click here to find out more. >></a></p>
-	</div>
-
-	<div style="width:300px;height:300px;border-style:solid;border-width:1px;border-color:#333333;background-color:#FEFEFE;padding:0px 15px 0px 15px;margin-top:15px;margin-right:15px;float:left;">
-	<p><strong><a href="http://bit.ly/RSM_AIOSEOP" target="_blank" rel="external" >All in One SEO Pack Pro</a></strong></p>
-	<p><strong>The best way to manage the code-related SEO for your WordPress site.</strong></p>
-	<p>Save time and effort optimizing the code of your WordPress site with All in One SEO Pack. One of the top rated, and most downloaded plugins on WordPress.org, this time-saving plugin is incredibly valuable. The pro version provides powerful features not available in the free version.</p>
-	<p><a href="http://bit.ly/RSM_AIOSEOP" target="_blank" rel="external" >Click here to find out more. >></a></p>
-	</div>
-
-	<div style="width:300px;height:300px;border-style:solid;border-width:1px;border-color:#333333;background-color:#FEFEFE;padding:0px 15px 0px 15px;margin-top:15px;margin-right:15px;float:left;clear:left;">
-	<p><strong><a href="http://bit.ly/RSM_Hostgator" target="_blank" rel="external" >Hostgator Website Hosting</a></strong></p>
-	<p><strong>Affordable, high quality web hosting. Great for WordPress and a variety of web applications.</strong></p>
-	<p>Hostgator has variety of affordable plans, reliable service, and customer support. Even on shared hosting, you get fast servers that are well-configured. Hostgator provides great balance of value and quality, which is why we recommend them.</p>
-	<p><a href="http://bit.ly/RSM_Hostgator"target="_blank" >Click here to find out more. >></a></p>
-	</div>
-
-	<div style="width:300px;height:300px;border-style:solid;border-width:1px;border-color:#333333;background-color:#FEFEFE;padding:0px 15px 0px 15px;margin-top:15px;margin-right:15px;float:left;">
-	<p><strong><a href="http://bit.ly/RSM_Level10" target="_blank" rel="external" >Level10 Domains</a></strong></p>
-	<p><strong>Inexpensive web domains with an easy to use admin dashboard.</strong></p>
-	<p>Level10 Domains offers some of the best prices you'll find on web domain purchasing. The dashboard provides an easy way to manage your domains.</p>
-	<p><a href="http://bit.ly/RSM_Level10" target="_blank" rel="external" >Click here to find out more. >></a></p>
-	</div>
-
-	<p style="clear:both;">&nbsp;</p>
-
 	<?php
+		$wpss_rpd	= array(
+						array('clear:left;','RSM_Genesis','Genesis WordPress Framework','Other themes and frameworks have nothing on Genesis. Optimized for site speed and SEO.','Simply put, the Genesis framework is one of the best ways to design and build a WordPress site. Built-in SEO and optimized for speed. Create just about any kind of design with child themes.'),
+						array('','RSM_AIOSEOP','All in One SEO Pack Pro','The best way to manage the code-related SEO for your WordPress site.','Save time and effort optimizing the code of your WordPress site with All in One SEO Pack. One of the top rated, and most downloaded plugins on WordPress.org, this time-saving plugin is incredibly valuable. The pro version provides powerful features not available in the free version.'),
+						array('clear:left;','RSM_Hostgator','Hostgator Website Hosting','Affordable, high quality web hosting. Great for WordPress and a variety of web applications.','Hostgator has variety of affordable plans, reliable service, and customer support. Even on shared hosting, you get fast servers that are well-configured. Hostgator provides great balance of value and quality, which is why we recommend them.'),
+						array('','RSM_Level10','Level10 Domains','Inexpensive web domains with an easy to use admin dashboard.','Level10 Domains offers some of the best prices you\'ll find on web domain purchasing. The dashboard provides an easy way to manage your domains.'),
+						);
+		foreach( $wpss_rpd as $i => $v ) {
+			echo "\t".'<div style="width:375px;height:280px;border-style:solid;border-width:1px;border-color:#333333;background-color:#FEFEFE;padding:0px 15px 0px 15px;margin-top:15px;margin-right:15px;float:left;'.$v[0].'">'."\n\t".'<p><strong><a href="http://bit.ly/'.$v[1].'" target="_blank" rel="external" >'.$v[2].'</a></strong></p>'."\n\t".'<p><strong>'.$v[3].'</strong></p>'."\n\t".'<p>'.$v[4].'</p>'."\n\t".'<p><a href="http://bit.ly/'.$v[1].'" target="_blank" rel="external" >Click here to find out more. >></a></p>'."\n\t".'</div>'."\n";
+			}
+
 		}
 	// Recommended Partners - END
 	?>
-
+	<p style="clear:both;">&nbsp;</p>
 	</div>
 	<?php
 	}

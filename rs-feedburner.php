@@ -4,7 +4,7 @@ Plugin Name: RS FeedBurner
 Plugin URI: http://www.redsandmarketing.com/plugins/rs-feedburner/
 Description: This plugin detects native WordPress feeds and redirects them to your FeedBurner feed so you can track your subscribers. 
 Author: Scott Allen
-Version: 1.4.4
+Version: 1.4.5
 Author URI: http://www.redsandmarketing.com/
 Text Domain: rs-feedburner
 License: GPLv2
@@ -41,11 +41,12 @@ if ( !function_exists( 'add_action' ) ) {
 	die('ERROR: This plugin requires WordPress and will not function if called directly.');
 	}
 
-define( 'RSFB_VERSION', '1.4.4' );
+define( 'RSFB_VERSION', '1.4.5' );
 define( 'RSFB_REQUIRED_WP_VERSION', '3.7' );
 // Constants prefixed with 'RSMP_' are shared with other RSM Plugins for efficiency.
 if ( !defined( 'RSFB_DEBUG' ) ) 				{ define( 'RSFB_DEBUG', FALSE ); } // Do not change value unless developer asks you to - for debugging only. Change in wp-config.php.
 if ( !defined( 'RSMP_SITE_URL' ) ) 				{ define( 'RSMP_SITE_URL', untrailingslashit( site_url() ) ); } 						// http://example.com
+if ( !defined( 'RSMP_SITE_DOMAIN' ) ) 			{ define( 'RSMP_SITE_DOMAIN', rsfb_get_domain( RSMP_SITE_URL ) ); }						// example.com
 if ( !defined( 'RSMP_PLUGINS_DIR_URL' ) ) 		{ define( 'RSMP_PLUGINS_DIR_URL', untrailingslashit( plugins_url() ) ); } 				// http://example.com/wp-content/plugins
 if ( !defined( 'RSMP_CONTENT_DIR_URL' ) ) 		{ define( 'RSMP_CONTENT_DIR_URL', untrailingslashit( content_url() ) ); } 				// http://example.com/wp-content
 if ( !defined( 'RSMP_ADMIN_URL' ) ) 			{ define( 'RSMP_ADMIN_URL', untrailingslashit( admin_url() ) ); }						// http://example.com/wp-admin
@@ -145,6 +146,18 @@ add_filter( 'plugin_action_links', 'rsfb_filter_plugin_actions', 10, 2 );
 add_filter( 'plugin_row_meta', 'rsfb_filter_plugin_meta', 10, 2 ); // Added 1.4.1
 
 // Standard Functions - BEGIN
+function rsfb_get_domain($url) {
+	// Get domain from URL
+	// Filter URLs with nothing after http
+	if ( empty( $url ) || preg_match( "~^https?\:*/*$~i", $url ) ) { return ''; }
+	// Fix poorly formed URLs so as not to throw errors when parsing
+	$url = rsfb_fix_url($url);
+	// NOW start parsing
+	$parsed = parse_url($url);
+	// Filter URLs with no domain
+	if ( empty( $parsed['host'] ) ) { return ''; }
+	return strtolower($parsed['host']);
+	}
 function rsfb_fix_url( $url, $rem_frag = FALSE, $rem_query = FALSE, $rev = FALSE ) {
 	// Fix poorly formed URLs so as not to throw errors or cause problems
 	// Too many forward slashes or colons after http
@@ -154,9 +167,9 @@ function rsfb_fix_url( $url, $rem_frag = FALSE, $rem_query = FALSE, $rev = FALSE
 	// Too many slashes after the domain
 	$url = preg_replace( "~([a-z0-9]+)/+([a-z0-9]+)~i", "$1/$2", $url);
 	// Remove fragments
-	if ( !empty( $rem_frag ) && strpos( $url, '#' ) !== FALSE ) { $url_arr = explode( '#', $query ); $url = $url_arr[0]; }
+	if ( !empty( $rem_frag ) && strpos( $url, '#' ) !== FALSE ) { $url_arr = explode( '#', $url ); $url = $url_arr[0]; }
 	// Remove query string completely
-	if ( !empty( $rem_query ) && strpos( $url, '?' ) !== FALSE ) { $url_arr = explode( '?', $query ); $url = $url_arr[0]; }
+	if ( !empty( $rem_query ) && strpos( $url, '?' ) !== FALSE ) { $url_arr = explode( '?', $url ); $url = $url_arr[0]; }
 	// Reverse
 	if ( !empty( $rev ) ) { $url = strrev($url); }
 	return $url;
@@ -166,8 +179,14 @@ function rsfb_get_server_addr() {
 	return $server_addr;
 	}
 function rsfb_get_server_name() {
-	if ( !empty( $_SERVER['SERVER_NAME'] ) ) { $server_name = strtolower( $_SERVER['SERVER_NAME'] ); } else { $server_name = strtolower( getenv('SERVER_NAME') ); }
-	return $server_name;
+	$rsfb_site_domain	= $server_name = RSMP_SITE_DOMAIN;
+	$rsfb_env_http_host	= getenv('HTTP_HOST');
+	$rsfb_env_srvr_name	= getenv('SERVER_NAME');
+	if 		( !empty( $_SERVER['HTTP_HOST'] ) 	&& strpos( $rsfb_site_domain, $_SERVER['HTTP_HOST'] ) 	!== FALSE ) { $server_name = $_SERVER['HTTP_HOST']; }
+	elseif 	( !empty( $rsfb_env_http_host ) 	&& strpos( $rsfb_site_domain, $rsfb_env_http_host ) 	!== FALSE ) { $server_name = $rsfb_env_http_host; }
+	elseif 	( !empty( $_SERVER['SERVER_NAME'] ) && strpos( $rsfb_site_domain, $_SERVER['SERVER_NAME'] ) !== FALSE ) { $server_name = $_SERVER['SERVER_NAME']; }
+	elseif 	( !empty( $rsfb_env_srvr_name ) 	&& strpos( $rsfb_site_domain, $rsfb_env_srvr_name ) 	!== FALSE ) { $server_name = $rsfb_env_srvr_name; }
+	return strtolower( $server_name );
 	}
 function rsfb_get_user_agent( $raw = FALSE, $lowercase = FALSE ) {
 	// Gives User-Agent with filters
@@ -368,13 +387,13 @@ function rsfb_plugin_settings_page() {
 	<p>Each of these products or services are ones that we highly recommend, based on our experience and the experience of our clients. We do receive a commission if you purchase one of these, but these are all products and services we were already recommending because we believe in them. By purchasing from these providers, you get quality and you help support the further development of RS FeedBurner.</p>
 	</div>
 	<?php
-		$wpss_rpd	= array(
+		$rsfb_rpd	= array(
 						array('clear:left;','RSM_Genesis','Genesis WordPress Framework','Other themes and frameworks have nothing on Genesis. Optimized for site speed and SEO.','Simply put, the Genesis framework is one of the best ways to design and build a WordPress site. Built-in SEO and optimized for speed. Create just about any kind of design with child themes.'),
 						array('','RSM_AIOSEOP','All in One SEO Pack Pro','The best way to manage the code-related SEO for your WordPress site.','Save time and effort optimizing the code of your WordPress site with All in One SEO Pack. One of the top rated, and most downloaded plugins on WordPress.org, this time-saving plugin is incredibly valuable. The pro version provides powerful features not available in the free version.'),
 						array('clear:left;','RSM_Hostgator','Hostgator Website Hosting','Affordable, high quality web hosting. Great for WordPress and a variety of web applications.','Hostgator has variety of affordable plans, reliable service, and customer support. Even on shared hosting, you get fast servers that are well-configured. Hostgator provides great balance of value and quality, which is why we recommend them.'),
 						array('','RSM_Level10','Level10 Domains','Inexpensive web domains with an easy to use admin dashboard.','Level10 Domains offers some of the best prices you\'ll find on web domain purchasing. The dashboard provides an easy way to manage your domains.'),
 						);
-		foreach( $wpss_rpd as $i => $v ) {
+		foreach( $rsfb_rpd as $i => $v ) {
 			echo "\t".'<div style="width:375px;height:280px;border-style:solid;border-width:1px;border-color:#333333;background-color:#FEFEFE;padding:0px 15px 0px 15px;margin-top:15px;margin-right:15px;float:left;'.$v[0].'">'."\n\t".'<p><strong><a href="http://bit.ly/'.$v[1].'" target="_blank" rel="external" >'.$v[2].'</a></strong></p>'."\n\t".'<p><strong>'.$v[3].'</strong></p>'."\n\t".'<p>'.$v[4].'</p>'."\n\t".'<p><a href="http://bit.ly/'.$v[1].'" target="_blank" rel="external" >Click here to find out more. >></a></p>'."\n\t".'</div>'."\n";
 			}
 

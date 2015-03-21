@@ -2,9 +2,9 @@
 /*
 Plugin Name: RS FeedBurner
 Plugin URI: http://www.redsandmarketing.com/plugins/rs-feedburner/
-Description: This plugin detects native WordPress feeds and redirects them to your FeedBurner feed so you can track your subscribers. 
+Description: This plugin detects native WordPress feeds and redirects them to your FeedBurner or FeedPress feed so you can track your subscribers. 
 Author: Scott Allen
-Version: 1.4.5
+Version: 1.4.6
 Author URI: http://www.redsandmarketing.com/
 Text Domain: rs-feedburner
 License: GPLv2
@@ -34,14 +34,12 @@ My use of the closing curly braces "}" is a little funky in that I indent them, 
 */
 
 // Make sure plugin remains secure if called directly
-if ( !function_exists( 'add_action' ) ) {
-	if ( !headers_sent() ) {
-		header('HTTP/1.1 403 Forbidden');
-		}
+if ( !defined( 'ABSPATH' ) ) {
+	if ( !headers_sent() ) { header('HTTP/1.1 403 Forbidden'); }
 	die('ERROR: This plugin requires WordPress and will not function if called directly.');
 	}
 
-define( 'RSFB_VERSION', '1.4.5' );
+define( 'RSFB_VERSION', '1.4.6' );
 define( 'RSFB_REQUIRED_WP_VERSION', '3.7' );
 // Constants prefixed with 'RSMP_' are shared with other RSM Plugins for efficiency.
 if ( !defined( 'RSFB_DEBUG' ) ) 				{ define( 'RSFB_DEBUG', FALSE ); } // Do not change value unless developer asks you to - for debugging only. Change in wp-config.php.
@@ -73,72 +71,45 @@ function rsfb_is_hash_valid($form_hash) {
 	if ($form_hash === $saved_hash) { $ret = TRUE; }
 	return $ret;
 	}
-
 function rsfb_generate_hash() {
 	$new_hash = md5( uniqid( rand(), TRUE ) );
 	return $new_hash;
 	}
-
 function rsfb_store_hash($rsfb_generated_hash) {
 	return update_option('rs_feedburner_token',$rsfb_generated_hash,'RS FeedBurner Security Hash');
 	}
-
 function rsfb_retrieve_hash() {
 	$ret = get_option('rs_feedburner_token');
 	return $ret;
 	}
-
 function rsfb_feed_redirect() {
-	global $wp, $rsfb_feedburner_settings, $rsfb_feedburner_main_url, $rsfb_feedburner_comments_url, $feed, $withcomments;
-	$rsfb_query_vars = '';
-	if ( !empty( $wp->query_vars['category_name'] ) ) {
-		$rsfb_query_vars = $wp->query_vars['category_name'];
-		}
-	if ( is_feed() && $feed != 'comments-rss2' && !is_single() && $rsfb_query_vars == '' && ( $withcomments != 1 ) && !empty($rsfb_feedburner_main_url) && strpos($rsfb_feedburner_main_url,'http')===0 ) {
-		if (function_exists('status_header')) { status_header( 302 ); }
-		header("Location:" . $rsfb_feedburner_main_url );
-		header("HTTP/1.1 302 Temporary Redirect");
-		exit();
-		} 
-	elseif ( is_feed() && ( $feed == 'comments-rss2' || $withcomments == 1 ) && !empty($rsfb_feedburner_comments_url) && strpos($rsfb_feedburner_comments_url,'http')===0 ) {
-		if (function_exists('status_header')) { status_header( 302 ); }
-		header("Location:" . $rsfb_feedburner_comments_url );
-		header("HTTP/1.1 302 Temporary Redirect");
-		exit();
-		}
-	}
-
-function rsfb_check_url() {
 	if ( is_feed() ) {
 		global $rsfb_feedburner_settings, $rsfb_feedburner_main_url, $rsfb_feedburner_comments_url;
-		switch (basename($_SERVER['PHP_SELF'])) {
-			case 'wp-rss.php':
-			case 'wp-rss2.php':
-			case 'wp-atom.php':
-			case 'wp-rdf.php':
-				if (!empty($rsfb_feedburner_main_url) && strpos($rsfb_feedburner_main_url,'http')===0) {
-					if (function_exists('status_header')) status_header( 302 );
-					header("Location:".$rsfb_feedburner_main_url);
-					header("HTTP/1.1 302 Temporary Redirect");
-					exit();
-					}
-				break;
-			case 'wp-commentsrss2.php':
-				if (!empty($rsfb_feedburner_comments_url) && strpos($rsfb_feedburner_comments_url,'http')===0) {
-					if (function_exists('status_header')) status_header( 302 );
-					header("Location:".$rsfb_feedburner_comments_url);
-					header("HTTP/1.1 302 Temporary Redirect");
-					exit();
-					}
-				break;
+		if ( is_comment_feed() ) { // Comment feed
+			$rsfb_feedburner_redir_url = $rsfb_feedburner_comments_url;
+			}
+		else { // Main feed: 'feed', 'rdf', 'rss', 'rss2', 'atom'
+			$rsfb_feedburner_redir_url = $rsfb_feedburner_main_url;
+			}
+		if (!empty($rsfb_feedburner_redir_url) && strpos($rsfb_feedburner_redir_url,'http')===0) {
+			if (function_exists('status_header')) { status_header( 302 ); }
+			header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
+			header("Pragma: no-cache"); // HTTP 1.0
+			header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
+			header("Location:".$rsfb_feedburner_redir_url);
+			header("HTTP/1.1 302 Temporary Redirect");
+			exit();
 			}
 		}
 	}
 
 $rsfb_user_agent_lc = rsfb_get_user_agent( TRUE, TRUE );
-if ( strpos( $rsfb_user_agent_lc, 'feedburner' ) === FALSE && strpos( $rsfb_user_agent_lc, 'feedvalidator' ) === FALSE ) {
+if ( FALSE === strpos( $rsfb_user_agent_lc, 'feedburner' ) 		&& 
+	 FALSE === strpos( $rsfb_user_agent_lc, 'feedpress' ) 		&& 
+	 FALSE === strpos( $rsfb_user_agent_lc, 'uri.lv' ) 			&& 
+	 FALSE === strpos( $rsfb_user_agent_lc, 'feedvalidator' ) 
+	) {
 	add_action('template_redirect', 'rsfb_feed_redirect');
-	add_action('init','rsfb_check_url');
 	}
 
 add_action( 'admin_menu', 'rsfb_add_plugin_settings_page' );
@@ -153,7 +124,7 @@ function rsfb_get_domain($url) {
 	// Fix poorly formed URLs so as not to throw errors when parsing
 	$url = rsfb_fix_url($url);
 	// NOW start parsing
-	$parsed = parse_url($url);
+	$parsed = @parse_url($url);
 	// Filter URLs with no domain
 	if ( empty( $parsed['host'] ) ) { return ''; }
 	return strtolower($parsed['host']);
@@ -193,11 +164,23 @@ function rsfb_get_user_agent( $raw = FALSE, $lowercase = FALSE ) {
 	// If blank, gives an initialized var to eliminate need for testing if isset() everywhere
 	// Default is sanitized
 	if ( !empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-		if ( !empty ( $raw ) ) { $user_agent = $_SERVER['HTTP_USER_AGENT']; } else { $user_agent = sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] ); }
-		if ( !empty ( $lowercase ) ) { $user_agent = strtolower( $user_agent ); }
+		if ( !empty ( $raw ) ) 			{ $user_agent = trim( $_SERVER['HTTP_USER_AGENT'] ); } else { $user_agent = sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] ); }
+		if ( !empty ( $lowercase ) ) 	{ $user_agent = strtolower( $user_agent ); }
 		}
 	else { $user_agent = ''; }
 	return $user_agent;
+	}
+function rsfb_format_bytes( $size, $precision = 2 ) {
+	if ( !is_numeric($size) ) { return $size; }
+    $base = log($size) / log(1024);
+    $suffixes = array('', 'k', 'M', 'G', 'T');
+	$formatted_num = round(pow(1024, $base - floor($base)), $precision) . $suffixes[floor($base)];
+    return $formatted_num;
+	}
+function rsfb_wp_memory_used() {
+	$wp_memory_used = 0;
+	if ( function_exists( 'memory_get_usage' ) ) { $wp_memory_used = rsfb_format_bytes( memory_get_usage() ); }
+    return $wp_memory_used;
 	}
 function rsfb_is_lang_en_us( $strict = TRUE ) {
 	// Test if site is set to use English (US) - the default - or another language/localization
@@ -215,6 +198,21 @@ function rsfb_is_lang_en_us( $strict = TRUE ) {
 function rsfb_doc_txt() {
 	$doc_txt = __( 'Documentation', RSFB_PLUGIN_NAME );
 	return $doc_txt;
+	}
+function rsfb_append_log_data( $str = NULL, $rsds_only = FALSE ) {
+	// Adds data to the log for debugging - only use when Debugging - Use with WP_DEBUG & RSFB_DEBUG
+	/*
+	* Example:
+	* rsfb_append_log_data( "\n".'$wpss_example_variable: "'.$wpss_example_variable.'" Line: '.__LINE__.' | '.__FUNCTION__, TRUE );
+	* rsfb_append_log_data( "\n".'$wpss_example_variable: "'.$wpss_example_variable.'" Line: '.__LINE__.' | '.__FUNCTION__.' | MEM USED: ' . rsfb_wp_memory_used() . ' | VER: ' . RSFB_VERSION, TRUE );
+	* rsfb_append_log_data( "\n".'[A]$wpss_example_array_var: "'.serialize($wpss_example_array_var).'" Line: '.__LINE__.' | '.__FUNCTION__.' | MEM USED: ' . rsfb_wp_memory_used() . ' | VER: ' . RSFB_VERSION, TRUE );
+	* rsfb_append_log_data( "\n".'Line: '.__LINE__.' | '.__FUNCTION__.' | MEM USED: ' . rsfb_wp_memory_used() . ' | VER: ' . RSFB_VERSION, TRUE );
+	*/
+	if ( WP_DEBUG === TRUE && RSFB_DEBUG === TRUE ) {
+		if ( !empty( $rsds_only ) && strpos( RSMP_SERVER_NAME_REV, RSMP_DEBUG_SERVER_NAME_REV ) !== 0 ) { return; }
+		$rsfb_log_str = 'RS FeedBurner DEBUG: '.str_replace("\n", "", $str);
+		error_log( $rsfb_log_str, 0 ); // Logs to debug.log
+		}
 	}
 // Standard Functions - END
 
@@ -347,16 +345,17 @@ function rsfb_plugin_settings_page() {
 	$rsfb_temp_hash = rsfb_generate_hash();
 	rsfb_store_hash($rsfb_temp_hash);
 	$rsfb_token_value=rsfb_retrieve_hash();
+	$rsfb_input_width = '90';
 	echo '<div class="wrap">';
 	echo '<h2 style="color:#7c2001">' . 'RS FeedBurner ' . __('Settings') . '</h2>';
-	echo '<p><img src="'.RSFB_PLUGIN_IMG_URL.'/rs-feedburner-icon-36.png" width="36" height="36" align="left" style="width:36px;height:36px;border-style:none;vertical-align:middle;padding-right:12px;padding-top:2px;float:left;" alt="" />'.__( 'This plugin helps you redirect all inbound traffic for your feeds to your custom FeedBurner feed.<br />FeedBurner tracks all your feed subscriber traffic and usage and enhances your original WordPress feed.', RSFB_PLUGIN_NAME ).'</p>
+	echo '<p><img src="'.RSFB_PLUGIN_IMG_URL.'/rs-feedburner-icon-36.png" width="36" height="36" align="left" style="width:36px;height:36px;border-style:none;vertical-align:middle;padding-right:12px;padding-top:2px;float:left;" alt="" />'.__( 'This plugin helps you redirect all inbound traffic for your feeds to your custom FeedBurner or FeedPress feed.', RSFB_PLUGIN_NAME ).'<br/>'.__( 'FeedBurner and FeedPress track all your feed subscriber traffic and usage and enhance your original WordPress feed.', RSFB_PLUGIN_NAME ).'</p>
 	<form action="" method="post">
 	<input type="hidden" name="redirect" value="true" />
 	<input type="hidden" name="rs_token" value="'.$rsfb_token_value.'" />
 	<ol>
-	<li>'.sprintf(__( 'If you haven\'t done so already, <a href="http://feedburner.google.com/" target="_blank" rel="external" >create a FeedBurner feed for %s</a>. This feed will handle all traffic for your posts.', RSFB_PLUGIN_NAME ),RSMP_BLOG_NAME).'</li>
-	<li>'.__( 'Once you have created your FeedBurner feed, enter its address into the field below (<strong>http://feeds.feedburner.com/YourFeed</strong>):', RSFB_PLUGIN_NAME ).'<br /><input type="text" name="rs_feedburner_url" value="'.htmlentities($rsfb_feedburner_settings['rs_feedburner_url']).'" size="45" /></li>
-	<li>'.__( 'Optional: If you also want to use FeedBurner for your WordPress comments feed, <a href="http://feedburner.google.com/" target="_blank" rel="external" >create a FeedBurner comments feed</a> and then enter its address below:', RSFB_PLUGIN_NAME ).'<br /><input type="text" name="rs_feedburner_comments_url" value="'.htmlentities($rsfb_feedburner_settings['rs_feedburner_comments_url']).'" size="45" />
+	<li>'.sprintf( __( 'If you haven\'t done so already, create a <a href=%1$s>FeedBurner</a> or <a href=%2$s>FeedPress</a> feed for %3$s. This feed will handle all traffic for your posts.', RSFB_PLUGIN_NAME ), '"http://feedburner.google.com/" target="_blank" rel="external" ', '"http://feed.press/" target="_blank" rel="external" ', RSMP_BLOG_NAME).'</li>
+	<li>'.__( 'Once you have created your FeedBurner or FeedPress feed, enter its address into the field below:', RSFB_PLUGIN_NAME ).'<br /><input type="text" name="rs_feedburner_url" value="'.esc_url( $rsfb_feedburner_settings['rs_feedburner_url'] ).'" size="'.$rsfb_input_width.'" /></br>'.__( 'It should be a complete URL, like: <strong>http://feeds.feedburner.com/YourFeed</strong> or <strong>http://feedpress.me/YourFeed</strong>', RSFB_PLUGIN_NAME ).'</li>
+	<li>'.sprintf( __( 'Optional: If you also want to use FeedBurner or FeedPress for your WordPress comments feed,</br>create a <a href=%1$s>FeedBurner</a> or <a href=%2$s>FeedPress</a> feed and then enter its address below:', RSFB_PLUGIN_NAME ), '"http://feedburner.google.com/" target="_blank" rel="external" ', '"http://feed.press/" target="_blank" rel="external" ' ).'<br /><input type="text" name="rs_feedburner_comments_url" value="'.esc_url( $rsfb_feedburner_settings['rs_feedburner_comments_url'] ).'" size="'.$rsfb_input_width.'" />
 	</ol>
 	<p><input type="submit" value="'.__( 'Save Changes' ).'" /></p></form>';
 	?>
@@ -390,8 +389,6 @@ function rsfb_plugin_settings_page() {
 		$rsfb_rpd	= array(
 						array('clear:left;','RSM_Genesis','Genesis WordPress Framework','Other themes and frameworks have nothing on Genesis. Optimized for site speed and SEO.','Simply put, the Genesis framework is one of the best ways to design and build a WordPress site. Built-in SEO and optimized for speed. Create just about any kind of design with child themes.'),
 						array('','RSM_AIOSEOP','All in One SEO Pack Pro','The best way to manage the code-related SEO for your WordPress site.','Save time and effort optimizing the code of your WordPress site with All in One SEO Pack. One of the top rated, and most downloaded plugins on WordPress.org, this time-saving plugin is incredibly valuable. The pro version provides powerful features not available in the free version.'),
-						array('clear:left;','RSM_Hostgator','Hostgator Website Hosting','Affordable, high quality web hosting. Great for WordPress and a variety of web applications.','Hostgator has variety of affordable plans, reliable service, and customer support. Even on shared hosting, you get fast servers that are well-configured. Hostgator provides great balance of value and quality, which is why we recommend them.'),
-						array('','RSM_Level10','Level10 Domains','Inexpensive web domains with an easy to use admin dashboard.','Level10 Domains offers some of the best prices you\'ll find on web domain purchasing. The dashboard provides an easy way to manage your domains.'),
 						);
 		foreach( $rsfb_rpd as $i => $v ) {
 			echo "\t".'<div style="width:375px;height:280px;border-style:solid;border-width:1px;border-color:#333333;background-color:#FEFEFE;padding:0px 15px 0px 15px;margin-top:15px;margin-right:15px;float:left;'.$v[0].'">'."\n\t".'<p><strong><a href="http://bit.ly/'.$v[1].'" target="_blank" rel="external" >'.$v[2].'</a></strong></p>'."\n\t".'<p><strong>'.$v[3].'</strong></p>'."\n\t".'<p>'.$v[4].'</p>'."\n\t".'<p><a href="http://bit.ly/'.$v[1].'" target="_blank" rel="external" >Click here to find out more. >></a></p>'."\n\t".'</div>'."\n";

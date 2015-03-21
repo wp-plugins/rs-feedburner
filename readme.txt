@@ -1,16 +1,16 @@
 === RS FeedBurner ===
 Contributors: RedSand
 Donate link: http://www.redsandmarketing.com/rs-feedburner-donate/
-Tags: feedburner, feedpress, feed, feeds, feedsmith, redirect, redirects, rss, seo, subscribe, subscribers, subscription, feedburner alternative, comments
+Tags: feedburner, feedpress, feedblitz, feed, feeds, feedsmith, redirect, redirects, rss, seo, subscribe, subscribers, subscription, feedburner alternative, comments
 Requires at least: 3.7
 Tested up to: 4.1
 Stable tag: trunk
 
-This plugin detects native WordPress feeds and redirects them to your FeedBurner or FeedPress feed so you can track your subscribers.
+This plugin detects native WordPress feeds and redirects them to your FeedBurner, FeedPress, or FeedBlitz feed so you can track your subscribers.
 
 == Description == 
 
-This plugin redirects all requests for your native WordPress feeds to your FeedBurner or FeedPress feeds so you can track all your subscribers and maximize your blog/site readership and user engagement.
+This plugin redirects all requests for your native WordPress feeds to your FeedBurner, FeedPress, or FeedBlitz feeds so you can track all your subscribers and maximize your blog/site readership and user engagement.
 
 You can redirect both your main WordPress feed and your comments feed if you like. (Comments feed is optional since not everyone uses it.)
 
@@ -28,7 +28,7 @@ Features:
 * Fast
 * Compatible
 
-One of the **easiest** ways to implement your FeedBurner or FeedPress feed on your WordPress site. *It just works.*
+One of the **easiest** ways to implement your FeedBurner, FeedPress, or FeedBlitz feed on your WordPress site. *It just works.*
 
 Important: If you are using a caching plugin, you will need to set it to *not* cache your *feeds*. (Cache plugins usually have an "exclude" setting so you can specify which pages won't be cached.)
 
@@ -79,9 +79,9 @@ You are good to go...it's that easy.
 
 = What options do I need to fill in? =
 
-After you sign up for a FeedBurner or FeedPress account, just fill in your new FeedBurner or FeedPress feed address, and click *Save Settings*. That's all! After that it will work.
+After you sign up for a FeedBurner, FeedPress, or FeedBlitz account, just fill in your new FeedBurner, FeedPress, or FeedBlitz feed address, and click *Save Settings*. That's all! After that it will work.
 
-Optional: If you have a FeedBurner or FeedPress feed setup for your comments, you can enter that as well, and your comment feed will automatically be redirected too.
+Optional: If you have a FeedBurner, FeedPress, or FeedBlitz feed setup for your comments, you can enter that as well, and your comment feed will automatically be redirected too.
 
 = You do great work...can I hire you? =
 
@@ -92,7 +92,7 @@ Absolutely...go to my [WordPress Consulting](http://www.redsandmarketing.com/web
 = 1.4.6 =
 *released 03/21/15*
 
-* Added support for FeedPress, a FeedBurner alternative.
+* Added support for FeedPress and FeedBlitz, FeedBurner alternatives.
 * Made various code improvements.
 
 = 1.4.5 =
@@ -173,4 +173,4 @@ This plugin is a fork of the original FeedBurner Feedsmith plugin by Steve Smith
 
 == Upgrade Notice ==
 = 1.4.6 =
-Added support for FeedPress, a FeedBurner alternative, and made various code improvements. Please see Changelog for details.
+Added support for FeedPress and FeedBlitz, FeedBurner alternatives, and made various code improvements. Please see Changelog for details.

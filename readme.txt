@@ -172,5 +172,5 @@ Absolutely...go to my [WordPress Consulting](http://www.redsandmarketing.com/web
 This plugin is a fork of the original FeedBurner Feedsmith plugin by Steve Smith. Since it was discontinued, I picked up where it left off so we all can have an actively updated plugin.
 
 == Upgrade Notice ==
-= 1.4.5 =
-Fixed a minor bug, and made various minor code improvements. Please see Changelog for details.
+= 1.4.6 =
+Added support for FeedPress, a FeedBurner alternative, and made various code improvements. Please see Changelog for details.

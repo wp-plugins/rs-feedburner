@@ -2,7 +2,7 @@
 /*
 Plugin Name: RS FeedBurner
 Plugin URI: http://www.redsandmarketing.com/plugins/rs-feedburner/
-Description: This plugin detects native WordPress feeds and redirects them to your FeedBurner or FeedPress feed so you can track your subscribers. 
+Description: This plugin detects native WordPress feeds and redirects them to your FeedBurner, FeedPress, or FeedBlitz feeds so you can track your subscribers. 
 Author: Scott Allen
 Version: 1.4.6
 Author URI: http://www.redsandmarketing.com/
@@ -106,6 +106,7 @@ function rsfb_feed_redirect() {
 $rsfb_user_agent_lc = rsfb_get_user_agent( TRUE, TRUE );
 if ( FALSE === strpos( $rsfb_user_agent_lc, 'feedburner' ) 		&& 
 	 FALSE === strpos( $rsfb_user_agent_lc, 'feedpress' ) 		&& 
+	 FALSE === strpos( $rsfb_user_agent_lc, 'feedblitz' ) 		&& 
 	 FALSE === strpos( $rsfb_user_agent_lc, 'uri.lv' ) 			&& 
 	 FALSE === strpos( $rsfb_user_agent_lc, 'feedvalidator' ) 
 	) {
@@ -348,14 +349,14 @@ function rsfb_plugin_settings_page() {
 	$rsfb_input_width = '90';
 	echo '<div class="wrap">';
 	echo '<h2 style="color:#7c2001">' . 'RS FeedBurner ' . __('Settings') . '</h2>';
-	echo '<p><img src="'.RSFB_PLUGIN_IMG_URL.'/rs-feedburner-icon-36.png" width="36" height="36" align="left" style="width:36px;height:36px;border-style:none;vertical-align:middle;padding-right:12px;padding-top:2px;float:left;" alt="" />'.__( 'This plugin helps you redirect all inbound traffic for your feeds to your custom FeedBurner or FeedPress feed.', RSFB_PLUGIN_NAME ).'<br/>'.__( 'FeedBurner and FeedPress track all your feed subscriber traffic and usage and enhance your original WordPress feed.', RSFB_PLUGIN_NAME ).'</p>
+	echo '<p><img src="'.RSFB_PLUGIN_IMG_URL.'/rs-feedburner-icon-36.png" width="36" height="36" align="left" style="width:36px;height:36px;border-style:none;vertical-align:middle;padding-right:12px;padding-top:2px;float:left;" alt="" />'.__( 'This plugin helps you redirect all inbound traffic for your feeds to your custom FeedBurner, FeedPress, or FeedBlitz feed.', RSFB_PLUGIN_NAME ).'<br/>'.__( 'FeedBurner, FeedPress, and FeedBlitz track all your feed subscriber traffic and usage and enhance your original WordPress feed.', RSFB_PLUGIN_NAME ).'</p>
 	<form action="" method="post">
 	<input type="hidden" name="redirect" value="true" />
 	<input type="hidden" name="rs_token" value="'.$rsfb_token_value.'" />
 	<ol>
-	<li>'.sprintf( __( 'If you haven\'t done so already, create a <a href=%1$s>FeedBurner</a> or <a href=%2$s>FeedPress</a> feed for %3$s. This feed will handle all traffic for your posts.', RSFB_PLUGIN_NAME ), '"http://feedburner.google.com/" target="_blank" rel="external" ', '"http://feed.press/" target="_blank" rel="external" ', RSMP_BLOG_NAME).'</li>
-	<li>'.__( 'Once you have created your FeedBurner or FeedPress feed, enter its address into the field below:', RSFB_PLUGIN_NAME ).'<br /><input type="text" name="rs_feedburner_url" value="'.esc_url( $rsfb_feedburner_settings['rs_feedburner_url'] ).'" size="'.$rsfb_input_width.'" /></br>'.__( 'It should be a complete URL, like: <strong>http://feeds.feedburner.com/YourFeed</strong> or <strong>http://feedpress.me/YourFeed</strong>', RSFB_PLUGIN_NAME ).'</li>
-	<li>'.sprintf( __( 'Optional: If you also want to use FeedBurner or FeedPress for your WordPress comments feed,</br>create a <a href=%1$s>FeedBurner</a> or <a href=%2$s>FeedPress</a> feed and then enter its address below:', RSFB_PLUGIN_NAME ), '"http://feedburner.google.com/" target="_blank" rel="external" ', '"http://feed.press/" target="_blank" rel="external" ' ).'<br /><input type="text" name="rs_feedburner_comments_url" value="'.esc_url( $rsfb_feedburner_settings['rs_feedburner_comments_url'] ).'" size="'.$rsfb_input_width.'" />
+	<li>'.sprintf( __( 'If you haven\'t done so already, create a <a href=%1$s>FeedBurner</a>, <a href=%2$s>FeedPress</a>, or <a href=%3$s>FeedBlitz</a> feed for %4$s. This feed will handle all traffic for your posts.', RSFB_PLUGIN_NAME ), '"http://feedburner.google.com/" target="_blank" rel="external" ', '"http://feed.press/" target="_blank" rel="external" ', '"http://www.feedblitz.com/" target="_blank" rel="external" ', RSMP_BLOG_NAME).'</li>
+	<li>'.__( 'Once you have created your FeedBurner, FeedPress, or FeedBlitz feed, enter its address into the field below:', RSFB_PLUGIN_NAME ).'<br /><input type="text" name="rs_feedburner_url" value="'.esc_url( $rsfb_feedburner_settings['rs_feedburner_url'] ).'" size="'.$rsfb_input_width.'" /></br>'.__( 'It should be a complete URL, like: <strong>http://feeds.feedburner.com/YourFeed</strong>, or <strong>http://feedpress.me/yourfeed</strong>, or <strong>http://feeds.feedblitz.com/yourfeed</strong>', RSFB_PLUGIN_NAME ).'</li>
+	<li>'.sprintf( __( 'Optional: If you also want to use FeedBurner, FeedPress, or FeedBlitz for your WordPress comments feed,</br>create a <a href=%1$s>FeedBurner</a>, <a href=%2$s>FeedPress</a>, or <a href=%3$s>FeedBlitz</a> feed and then enter its address below:', RSFB_PLUGIN_NAME ), '"http://feedburner.google.com/" target="_blank" rel="external" ', '"http://feed.press/" target="_blank" rel="external" ', '"http://www.feedblitz.com/" target="_blank" rel="external" ' ).'<br /><input type="text" name="rs_feedburner_comments_url" value="'.esc_url( $rsfb_feedburner_settings['rs_feedburner_comments_url'] ).'" size="'.$rsfb_input_width.'" />
 	</ol>
 	<p><input type="submit" value="'.__( 'Save Changes' ).'" /></p></form>';
 	?>

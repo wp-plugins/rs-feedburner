@@ -16,7 +16,7 @@ You can redirect both your main WordPress feed and your comments feed if you lik
 
 This plugin is a fork of the original FeedBurner Feedsmith plugin by Steve Smith. Since it was discontinued, I picked up where it left off so we all can have an actively updated plugin.
 
-As of version 1.4.6, this plugin supports FeedPress, the main FeedBurner alternative.
+As of version 1.4.6, this plugin supports FeedPress and FeedBlitz, popular FeedBurner alternatives.
 
 = Documentation / Tech Support =
 * Documentation: [Plugin Homepage](http://www.redsandmarketing.com/plugins/rs-feedburner/)

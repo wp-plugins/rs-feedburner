@@ -75,6 +75,15 @@ For more info and full documentation, visit the [RS FeedBurner homepage](http://
 
 You are good to go...it's that easy.
 
+= Other Notes =
+
+Important: If you are using a caching plugin, you will need to set it to *not cache* your feeds. (Cache plugins usually have an "exclude" setting so you can specify which pages won't be cached.)
+
+This plugin has not been designed specifically for use with Multisite. It can be used in Multisite if activated *per site*, but *should not* be Network Activated. As with any plugin, test and make sure it works with your particular setup before using on a production site.
+
+= More Info / Documentation =
+For more info and full documentation, visit the [RS Feedburner homepage](http://www.redsandmarketing.com/plugins/rs-feedburner/).
+
 == Frequently Asked Questions ==
 
 = What options do I need to fill in? =

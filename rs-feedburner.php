@@ -4,7 +4,7 @@ Plugin Name: RS FeedBurner
 Plugin URI: http://www.redsandmarketing.com/plugins/rs-feedburner/
 Description: This plugin detects native WordPress feeds and redirects them to your FeedBurner, FeedPress, or FeedBlitz feeds so you can track your subscribers. 
 Author: Scott Allen
-Version: 1.4.6
+Version: 1.4.7
 Author URI: http://www.redsandmarketing.com/
 Text Domain: rs-feedburner
 License: GPLv2
@@ -39,7 +39,7 @@ if ( !defined( 'ABSPATH' ) ) {
 	die('ERROR: This plugin requires WordPress and will not function if called directly.');
 	}
 
-define( 'RSFB_VERSION', '1.4.6' );
+define( 'RSFB_VERSION', '1.4.7' );
 define( 'RSFB_REQUIRED_WP_VERSION', '3.7' );
 // Constants prefixed with 'RSMP_' are shared with other RSM Plugins for efficiency.
 if ( !defined( 'RSFB_DEBUG' ) ) 				{ define( 'RSFB_DEBUG', FALSE ); } // Do not change value unless developer asks you to - for debugging only. Change in wp-config.php.
@@ -59,6 +59,10 @@ if ( !defined( 'RSFB_PLUGIN_FILE_PATH' ) )		{ define( 'RSFB_PLUGIN_FILE_PATH', R
 if ( !defined( 'RSMP_SERVER_ADDR' ) ) 			{ define( 'RSMP_SERVER_ADDR', rsfb_get_server_addr() ); }								// 10.20.30.100
 if ( !defined( 'RSMP_SERVER_NAME' ) ) 			{ define( 'RSMP_SERVER_NAME', rsfb_get_server_name() ); }								// example.com
 if ( !defined( 'RSMP_BLOG_NAME' ) ) 			{ define( 'RSMP_BLOG_NAME', get_bloginfo('name') ); }									// Blog Name
+if ( !defined( 'RSMP_WP_VERSION' ) ) {
+	global $wp_version;
+	define( 'RSMP_WP_VERSION', $wp_version );
+	}
 
 $rsfb_flash = '';
 $rsfb_feedburner_settings		= get_option('rs_feedburner_settings');
@@ -224,10 +228,28 @@ function rsfb_activation() {
 	}
 add_action( 'admin_init', 'rsfb_check_version' );
 function rsfb_check_version() {
+	if ( current_user_can( 'manage_network' ) ) {
+		/* Check for pending admin notices */
+		$admin_notices = get_option('rsfb_admin_notices');
+		if ( !empty( $admin_notices ) ) { add_action( 'network_admin_notices', 'rsfb_admin_notices' ); }
+		/* Make sure not network activated */
+		if ( is_plugin_active_for_network( RSFB_PLUGIN_BASENAME ) ) {
+			deactivate_plugins( RSFB_PLUGIN_BASENAME, TRUE, TRUE );
+			$notice_text = __( 'Plugin deactivated. RS FeedBurner is not available for network activation.', RSFB_PLUGIN_NAME );
+			$new_admin_notice = array( 'style' => 'error', 'notice' => $notice_text );
+			update_option( 'rsfb_admin_notices', $new_admin_notice );
+			add_action( 'network_admin_notices', 'rsfb_admin_notices' );
+			return FALSE;
+			}
+		}
 	if ( current_user_can('manage_options') ) {
-		// Make sure user has minimum required WordPress version, in order to prevent issues
-		global $wp_version;
-		$rsfb_wp_version = $wp_version;
+		/* Check if plugin has been upgraded */
+		rsfb_upgrade_check();
+		/* Check for pending admin notices */
+		$admin_notices = get_option('rsfb_admin_notices');
+		if ( !empty( $admin_notices ) ) { add_action( 'admin_notices', 'rsfb_admin_notices' ); }
+		/* Make sure user has minimum required WordPress version, in order to prevent issues */
+		$rsfb_wp_version = RSMP_WP_VERSION;
 		if ( version_compare( $rsfb_wp_version, RSFB_REQUIRED_WP_VERSION, '<' ) ) {
 			deactivate_plugins( RSFB_PLUGIN_BASENAME );
 			$notice_text = sprintf( __( 'Plugin deactivated. WordPress Version %s required. Please upgrade WordPress to the latest version.', RSFB_PLUGIN_NAME ), RSFB_REQUIRED_WP_VERSION );
@@ -236,7 +258,6 @@ function rsfb_check_version() {
 			add_action( 'admin_notices', 'rsfb_admin_notices' );
 			return FALSE;
 			}
-		add_action( 'admin_notices', 'rsfb_admin_notices' );
 		}
 	}
 function rsfb_admin_notices() {
@@ -268,7 +289,6 @@ function rsfb_filter_plugin_meta( $links, $file ) {
 	// Add Links on Dashboard Plugins page, in plugin meta
 	if ( $file == RSFB_PLUGIN_BASENAME ){
 		// after other links
-		//$links[] = '<a href="options-general.php?page='.RSFB_PLUGIN_NAME.'">' . __('Settings') . '</a>';
 		$links[] = '<a href="http://www.redsandmarketing.com/plugins/rs-feedburner/" target="_blank" rel="external" >' . rsfb_doc_txt() . '</a>';
 		$links[] = '<a href="http://www.redsandmarketing.com/plugins/wordpress-plugin-support/" target="_blank" rel="external" >' . __( 'Support', RSFB_PLUGIN_NAME ) . '</a>';
 		$links[] = '<a href="http://bit.ly/rs-feedburner-rate" target="_blank" rel="external" >' . __( 'Rate the Plugin', RSFB_PLUGIN_NAME ) . '</a>';
@@ -301,7 +321,6 @@ function rsfb_plugin_settings_page() {
 				if (isset($_POST['rs_feedburner_url'])) { 
 					// Validate
 					$rsfb_url = rsfb_fix_url( trim($_POST['rs_feedburner_url']) );
-					//if ( ( !preg_match( "~^https?\://~i", $rsfb_url ) || filter_var( $rsfb_url, FILTER_VALIDATE_URL ) === FALSE  ) && !empty( $rsfb_url ) ) {
 					if ( !preg_match( "~^https?\://~i", $rsfb_url ) && !empty( $rsfb_url ) ) {
 						$rsfb_flash 		= $rsfb_flash_feed_url_error;
 						$rsfb_flash_style	= 'error';
@@ -317,7 +336,6 @@ function rsfb_plugin_settings_page() {
 				if (isset($_POST['rs_feedburner_comments_url'])&&empty($rsfb_error)) {
 					// Validate
 					$rsfb_comments_url = rsfb_fix_url( trim($_POST['rs_feedburner_comments_url']) );
-					//if ( ( !preg_match( "~^https?\://~i", $rsfb_comments_url ) || filter_var( $rsfb_comments_url, FILTER_VALIDATE_URL ) === FALSE ) && !empty( $rsfb_comments_url ) ) {
 					if ( !preg_match( "~^https?\://~i", $rsfb_comments_url ) && !empty( $rsfb_comments_url ) ) {
 						$rsfb_flash 		= $rsfb_flash_feed_url_error;
 						$rsfb_flash_style	= 'error';
@@ -405,4 +423,3 @@ function rsfb_plugin_settings_page() {
 // Admin Functions - END
 
 // PLUGIN - END
-?>

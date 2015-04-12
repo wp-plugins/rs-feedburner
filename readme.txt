@@ -98,6 +98,11 @@ Absolutely...go to my [WordPress Consulting](http://www.redsandmarketing.com/web
 
 == Changelog ==
 
+= 1.4.7 =
+*released 04/11/15*
+
+* Added a fix to prevent network activation when used in multisite, and added network admin notice to explain. The plugin can be used in multisite just fine, but will need to be activated individually per site for now. Once we can get time to adapt the plugin to multisite more specifically, we can remove this restriction.
+
 = 1.4.6 =
 *released 03/21/15*
 
@@ -181,5 +186,5 @@ Absolutely...go to my [WordPress Consulting](http://www.redsandmarketing.com/web
 This plugin is a fork of the original FeedBurner Feedsmith plugin by Steve Smith. Since it was discontinued, I picked up where it left off so we all can have an actively updated plugin.
 
 == Upgrade Notice ==
-= 1.4.6 =
-Added support for FeedPress and FeedBlitz, FeedBurner alternatives, and made various code improvements. Please see Changelog for details.
+= 1.4.7 =
+Added a fix to prevent network activation when used in multisite. Please see Changelog for details.

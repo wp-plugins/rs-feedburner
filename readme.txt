@@ -69,9 +69,9 @@ For more info and full documentation, visit the [RS FeedBurner homepage](http://
 
 = Next Steps After Installation = 
 
-1. Go to the options page and enter the URL of your FeedBurner feed, and click *Save Settings*.
+1. Go to the options page and enter the URL of your FeedBurner, FeedPress, or FeedBlitz feed, and click *Save Settings*.
 
-2. You can optionally enter your comments feed url on FeedBurner if you have one setup.
+2. You can optionally enter your comments feed url on FeedBurner, FeedPress, or FeedBlitz if you have one setup.
 
 You are good to go...it's that easy.
 
@@ -82,7 +82,7 @@ Important: If you are using a caching plugin, you will need to set it to *not ca
 This plugin has not been designed specifically for use with Multisite. It can be used in Multisite if activated *per site*, but *should not* be Network Activated. As with any plugin, test and make sure it works with your particular setup before using on a production site.
 
 = More Info / Documentation =
-For more info and full documentation, visit the [RS Feedburner homepage](http://www.redsandmarketing.com/plugins/rs-feedburner/).
+For more info and full documentation, visit the [RS FeedBurner homepage](http://www.redsandmarketing.com/plugins/rs-feedburner/).
 
 == Frequently Asked Questions ==
 

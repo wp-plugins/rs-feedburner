@@ -1,0 +1,29 @@
+# RS FeedBurner - .htaccess
+# Version 1.4.8
+
+# Control direct access to certain files.
+# Apache 2.2 and 2.4 compatible
+
+# readme.txt - Deny
+<Files readme.txt>
+	# Apache 2.2
+	<IfModule !mod_authz_core.c>
+		Deny from all
+	</IfModule>
+
+	# Apache 2.4
+	<IfModule mod_authz_core.c>
+		Require all denied
+	</IfModule>
+</Files>
+
+# Language files - Deny
+<FilesMatch "^.*\.(mo|pot)$">
+	<IfModule !mod_authz_core.c>
+		Deny from all
+	</IfModule>
+
+	<IfModule mod_authz_core.c>
+		Require all denied
+	</IfModule>
+</FilesMatch>

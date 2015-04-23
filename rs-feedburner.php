@@ -4,7 +4,7 @@ Plugin Name: RS FeedBurner
 Plugin URI: http://www.redsandmarketing.com/plugins/rs-feedburner/
 Description: This plugin detects native WordPress feeds and redirects them to your FeedBurner, FeedPress, or FeedBlitz feeds so you can track your subscribers. 
 Author: Scott Allen
-Version: 1.4.7
+Version: 1.4.8
 Author URI: http://www.redsandmarketing.com/
 Text Domain: rs-feedburner
 License: GPLv2
@@ -39,8 +39,8 @@ if ( !defined( 'ABSPATH' ) ) {
 	die('ERROR: This plugin requires WordPress and will not function if called directly.');
 	}
 
-define( 'RSFB_VERSION', '1.4.7' );
-define( 'RSFB_REQUIRED_WP_VERSION', '3.7' );
+define( 'RSFB_VERSION', '1.4.8' );
+define( 'RSFB_REQUIRED_WP_VERSION', '3.8' );
 // Constants prefixed with 'RSMP_' are shared with other RSM Plugins for efficiency.
 if ( !defined( 'RSFB_DEBUG' ) ) 				{ define( 'RSFB_DEBUG', FALSE ); } // Do not change value unless developer asks you to - for debugging only. Change in wp-config.php.
 if ( !defined( 'RSMP_SITE_URL' ) ) 				{ define( 'RSMP_SITE_URL', untrailingslashit( site_url() ) ); } 						// http://example.com
@@ -95,7 +95,7 @@ function rsfb_feed_redirect() {
 		else { // Main feed: 'feed', 'rdf', 'rss', 'rss2', 'atom'
 			$rsfb_feedburner_redir_url = $rsfb_feedburner_main_url;
 			}
-		if (!empty($rsfb_feedburner_redir_url) && strpos($rsfb_feedburner_redir_url,'http')===0) {
+		if ( !empty($rsfb_feedburner_redir_url) && strpos($rsfb_feedburner_redir_url,'http')===0 ) {
 			if (function_exists('status_header')) { status_header( 302 ); }
 			header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
 			header("Pragma: no-cache"); // HTTP 1.0
@@ -122,33 +122,27 @@ add_filter( 'plugin_action_links', 'rsfb_filter_plugin_actions', 10, 2 );
 add_filter( 'plugin_row_meta', 'rsfb_filter_plugin_meta', 10, 2 ); // Added 1.4.1
 
 // Standard Functions - BEGIN
-function rsfb_get_domain($url) {
-	// Get domain from URL
-	// Filter URLs with nothing after http
-	if ( empty( $url ) || preg_match( "~^https?\:*/*$~i", $url ) ) { return ''; }
-	// Fix poorly formed URLs so as not to throw errors when parsing
-	$url = rsfb_fix_url($url);
-	// NOW start parsing
-	$parsed = @parse_url($url);
-	// Filter URLs with no domain
-	if ( empty( $parsed['host'] ) ) { return ''; }
-	return strtolower($parsed['host']);
-	}
-function rsfb_fix_url( $url, $rem_frag = FALSE, $rem_query = FALSE, $rev = FALSE ) {
-	// Fix poorly formed URLs so as not to throw errors or cause problems
-	// Too many forward slashes or colons after http
-	$url = preg_replace( "~^(https?)\:+/+~i", "$1://", $url);
-	// Too many dots
-	$url = preg_replace( "~\.+~i", ".", $url);
-	// Too many slashes after the domain
-	$url = preg_replace( "~([a-z0-9]+)/+([a-z0-9]+)~i", "$1/$2", $url);
-	// Remove fragments
-	if ( !empty( $rem_frag ) && strpos( $url, '#' ) !== FALSE ) { $url_arr = explode( '#', $url ); $url = $url_arr[0]; }
-	// Remove query string completely
-	if ( !empty( $rem_query ) && strpos( $url, '?' ) !== FALSE ) { $url_arr = explode( '?', $url ); $url = $url_arr[0]; }
-	// Reverse
-	if ( !empty( $rev ) ) { $url = strrev($url); }
-	return $url;
+function rsfb_casetrans( $type, $string ) {
+	/***
+	* Convert case using multibyte version if available, if not, use defaults
+	***/
+	switch ($type) {
+		case 'upper':
+			if ( function_exists( 'mb_strtoupper' ) ) { return mb_strtoupper($string, 'UTF-8'); } else { return strtoupper($string); }
+		case 'lower':
+			if ( function_exists( 'mb_strtolower' ) ) { return mb_strtolower($string, 'UTF-8'); } else { return strtolower($string); }
+		case 'ucfirst':
+			if ( function_exists( 'mb_strtoupper' ) && function_exists( 'mb_substr' ) ) { return mb_strtoupper(mb_substr($string, 0, 1, 'UTF-8'), 'UTF-8') . mb_substr($string, 1, NULL, 'UTF-8'); } else { return ucfirst($string); }
+		case 'ucwords':
+			if ( function_exists( 'mb_convert_case' ) ) { return mb_convert_case($string, MB_CASE_TITLE, 'UTF-8'); } else { return ucwords($string); }
+			/***
+			* Note differences in results between ucwords() and this. 
+			* ucwords() will capitalize first characters without altering other characters, whereas this will lowercase everything, but capitalize the first character of each word.
+			* This works better for our purposes, but be aware of differences.
+			***/
+		default:
+			return $string;
+		}
 	}
 function rsfb_get_server_addr() {
 	if ( !empty( $_SERVER['SERVER_ADDR'] ) ) { $server_addr = $_SERVER['SERVER_ADDR']; } else { $server_addr = getenv('SERVER_ADDR'); }
@@ -162,7 +156,38 @@ function rsfb_get_server_name() {
 	elseif 	( !empty( $rsfb_env_http_host ) 	&& strpos( $rsfb_site_domain, $rsfb_env_http_host ) 	!== FALSE ) { $server_name = $rsfb_env_http_host; }
 	elseif 	( !empty( $_SERVER['SERVER_NAME'] ) && strpos( $rsfb_site_domain, $_SERVER['SERVER_NAME'] ) !== FALSE ) { $server_name = $_SERVER['SERVER_NAME']; }
 	elseif 	( !empty( $rsfb_env_srvr_name ) 	&& strpos( $rsfb_site_domain, $rsfb_env_srvr_name ) 	!== FALSE ) { $server_name = $rsfb_env_srvr_name; }
-	return strtolower( $server_name );
+	return rsfb_casetrans( 'lower', $server_name );
+	}
+function rsfb_get_domain($url) {
+	// Get domain from URL
+	// Filter URLs with nothing after http
+	if ( empty( $url ) || preg_match( "~^https?\:*/*$~i", $url ) ) { return ''; }
+	// Fix poorly formed URLs so as not to throw errors when parsing
+	$url = rsfb_fix_url( $url );
+	// NOW start parsing
+	$parsed = @parse_url( $url );
+	// Filter URLs with no domain
+	if ( empty( $parsed['host'] ) ) { return ''; }
+	return rsfb_casetrans( 'lower', $parsed['host'] );
+	}
+function rsfb_fix_url( $url, $rem_frag = FALSE, $rem_query = FALSE, $rev = FALSE ) {
+	/***
+	* Fix poorly formed URLs so as not to throw errors or cause problems
+	***/
+	$url = trim( $url );
+	/* Too many forward slashes or colons after http */
+	$url = preg_replace( "~^(https?)\:+/+~i", "$1://", $url );
+	/* Too many dots */
+	$url = preg_replace( "~\.+~i", ".", $url );
+	/* Too many slashes after the domain */
+	$url = preg_replace( "~([a-z0-9]+)/+([a-z0-9]+)~i", "$1/$2", $url );
+	/* Remove fragments */
+	if ( !empty( $rem_frag ) && strpos( $url, '#' ) !== FALSE ) { $url_arr = explode( '#', $url ); $url = $url_arr[0]; }
+	/* Remove query string completely */
+	if ( !empty( $rem_query ) && strpos( $url, '?' ) !== FALSE ) { $url_arr = explode( '?', $url ); $url = $url_arr[0]; }
+	/* Reverse */
+	if ( !empty( $rev ) ) { $url = strrev($url); }
+	return $url;
 	}
 function rsfb_get_user_agent( $raw = FALSE, $lowercase = FALSE ) {
 	// Gives User-Agent with filters
@@ -170,7 +195,7 @@ function rsfb_get_user_agent( $raw = FALSE, $lowercase = FALSE ) {
 	// Default is sanitized
 	if ( !empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
 		if ( !empty ( $raw ) ) 			{ $user_agent = trim( $_SERVER['HTTP_USER_AGENT'] ); } else { $user_agent = sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] ); }
-		if ( !empty ( $lowercase ) ) 	{ $user_agent = strtolower( $user_agent ); }
+		if ( !empty ( $lowercase ) ) 	{ $user_agent = rsfb_casetrans( 'lower', $user_agent ); }
 		}
 	else { $user_agent = ''; }
 	return $user_agent;
@@ -201,8 +226,7 @@ function rsfb_is_lang_en_us( $strict = TRUE ) {
 	return $lang_en_us;
 	}
 function rsfb_doc_txt() {
-	$doc_txt = __( 'Documentation', RSFB_PLUGIN_NAME );
-	return $doc_txt;
+	return __( 'Documentation', RSFB_PLUGIN_NAME );
 	}
 function rsfb_append_log_data( $str = NULL, $rsds_only = FALSE ) {
 	// Adds data to the log for debugging - only use when Debugging - Use with WP_DEBUG & RSFB_DEBUG
@@ -230,7 +254,7 @@ add_action( 'admin_init', 'rsfb_check_version' );
 function rsfb_check_version() {
 	if ( current_user_can( 'manage_network' ) ) {
 		/* Check for pending admin notices */
-		$admin_notices = get_option('rsfb_admin_notices');
+		$admin_notices = get_option( 'rsfb_admin_notices' );
 		if ( !empty( $admin_notices ) ) { add_action( 'network_admin_notices', 'rsfb_admin_notices' ); }
 		/* Make sure not network activated */
 		if ( is_plugin_active_for_network( RSFB_PLUGIN_BASENAME ) ) {
@@ -242,11 +266,11 @@ function rsfb_check_version() {
 			return FALSE;
 			}
 		}
-	if ( current_user_can('manage_options') ) {
+	if ( current_user_can( 'manage_options' ) ) {
 		/* Check if plugin has been upgraded */
 		rsfb_upgrade_check();
 		/* Check for pending admin notices */
-		$admin_notices = get_option('rsfb_admin_notices');
+		$admin_notices = get_option( 'rsfb_admin_notices' );
 		if ( !empty( $admin_notices ) ) { add_action( 'admin_notices', 'rsfb_admin_notices' ); }
 		/* Make sure user has minimum required WordPress version, in order to prevent issues */
 		$rsfb_wp_version = RSMP_WP_VERSION;
@@ -263,15 +287,15 @@ function rsfb_check_version() {
 function rsfb_admin_notices() {
 	$admin_notices = get_option('rsfb_admin_notices');
 	if ( !empty( $admin_notices ) ) {
-		$style 	= $admin_notices['style']; // 'error'  or 'updated'
+		$style 	= $admin_notices['style']; /* 'error' or 'updated' */
 		$notice	= $admin_notices['notice'];
 		echo '<div class="'.$style.'"><p>'.$notice.'</p></div>';
 		}
 	delete_option('rsfb_admin_notices');
 	}
 function rsfb_upgrade_check( $installed_ver = NULL ) {
-	if ( empty( $installed_ver ) ) { $installed_ver = get_option('rs_feedburner_version'); }
-	if ( $installed_ver != RSFB_VERSION ) { update_option('rs_feedburner_version', RSFB_VERSION); }
+	if ( empty( $installed_ver ) ) { $installed_ver = get_option( 'rs_feedburner_version' ); }
+	if ( $installed_ver != RSFB_VERSION ) { update_option( 'rs_feedburner_version', RSFB_VERSION ); }
 	}
 add_action( 'plugins_loaded', 'rsfb_load_languages' );
 function rsfb_load_languages() {

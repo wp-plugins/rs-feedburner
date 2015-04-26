@@ -30,10 +30,18 @@ Features:
 
 One of the **easiest** ways to implement your FeedBurner, FeedPress, or FeedBlitz feed on your WordPress site. *It just works.*
 
+You will need a FeedBurner, FeedPress, or FeedBlitz account to use this plugin.
+
 Important: If you are using a caching plugin, you will need to set it to *not* cache your *feeds*. (Cache plugins usually have an "exclude" setting so you can specify which pages won't be cached.)
 
 = More Info / Documentation =
 For more info and full documentation, visit the [RS FeedBurner homepage](http://www.redsandmarketing.com/plugins/rs-feedburner/ "RS FeedBurner homepage").
+
+= Requirements =
+
+* A FeedBurner, FeedPress, or FeedBlitz account
+* WordPress 3.8 or higher (Recommended: WordPress 4.0 or higher)
+* PHP 5.3 or higher (Recommended: PHP 5.4 or higher)
 
 == Installation ==
 
@@ -73,7 +81,7 @@ For more info and full documentation, visit the [RS FeedBurner homepage](http://
 
 2. You can optionally enter your comments feed url on FeedBurner, FeedPress, or FeedBlitz if you have one setup.
 
-You are good to go...it's that easy.
+You are good to go...it's that easy. After this, just log into your FeedBurner, FeedPress, or FeedBlitz account to view your subscriber data.
 
 = Other Notes =
 

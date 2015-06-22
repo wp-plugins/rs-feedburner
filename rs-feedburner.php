@@ -4,7 +4,7 @@ Plugin Name: RS FeedBurner
 Plugin URI: http://www.redsandmarketing.com/plugins/rs-feedburner/
 Description: This plugin detects native WordPress feeds and redirects them to your FeedBurner, FeedPress, or FeedBlitz feeds so you can track your subscribers. 
 Author: Scott Allen
-Version: 1.4.8
+Version: 1.4.9
 Author URI: http://www.redsandmarketing.com/
 Text Domain: rs-feedburner
 License: GPLv2
@@ -39,7 +39,7 @@ if ( !defined( 'ABSPATH' ) ) {
 	die('ERROR: This plugin requires WordPress and will not function if called directly.');
 	}
 
-define( 'RSFB_VERSION', '1.4.8' );
+define( 'RSFB_VERSION', '1.4.9' );
 define( 'RSFB_REQUIRED_WP_VERSION', '3.8' );
 // Constants prefixed with 'RSMP_' are shared with other RSM Plugins for efficiency.
 if ( !defined( 'RSFB_DEBUG' ) ) 				{ define( 'RSFB_DEBUG', FALSE ); } // Do not change value unless developer asks you to - for debugging only. Change in wp-config.php.
@@ -146,6 +146,7 @@ function rsfb_casetrans( $type, $string ) {
 	}
 function rsfb_get_server_addr() {
 	if ( !empty( $_SERVER['SERVER_ADDR'] ) ) { $server_addr = $_SERVER['SERVER_ADDR']; } else { $server_addr = getenv('SERVER_ADDR'); }
+	if ( empty( $server_addr ) ) { $server_addr = ''; }
 	return $server_addr;
 	}
 function rsfb_get_server_name() {
@@ -201,10 +202,13 @@ function rsfb_get_user_agent( $raw = FALSE, $lowercase = FALSE ) {
 	return $user_agent;
 	}
 function rsfb_format_bytes( $size, $precision = 2 ) {
-	if ( !is_numeric($size) ) { return $size; }
+	if ( !is_numeric( $size ) || empty( $size ) ) { return $size; }
     $base = log($size) / log(1024);
+    $base_floor = floor($base);
     $suffixes = array('', 'k', 'M', 'G', 'T');
-	$formatted_num = round(pow(1024, $base - floor($base)), $precision) . $suffixes[floor($base)];
+    $suffix = isset( $suffixes[$base_floor] ) ? $suffixes[$base_floor] : '';
+	if ( empty($suffix) ) { return $size; }
+	$formatted_num = round(pow(1024, $base - $base_floor), $precision) . $suffix;
     return $formatted_num;
 	}
 function rsfb_wp_memory_used() {

@@ -106,6 +106,11 @@ Absolutely...go to my [WordPress Consulting](http://www.redsandmarketing.com/web
 
 == Changelog ==
 
+= 1.4.9 =
+*released 06/21/15*
+
+* Made various minor code improvements.
+
 = 1.4.8 =
 *released 04/23/15*
 
@@ -201,5 +206,5 @@ Absolutely...go to my [WordPress Consulting](http://www.redsandmarketing.com/web
 This plugin is a fork of the original FeedBurner Feedsmith plugin by Steve Smith. Since it was discontinued, I picked up where it left off so we all can have an actively updated plugin.
 
 == Upgrade Notice ==
-= 1.4.8 =
-Increased the minimum required WordPress version to 3.8, added an .htaccess file, and made various code improvements. Please see Changelog for details.
+= 1.4.9 =
+Made various code improvements. Please see Changelog for details.

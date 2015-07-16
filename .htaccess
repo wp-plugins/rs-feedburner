@@ -1,5 +1,5 @@
 # RS FeedBurner - .htaccess
-# Version 1.4.9
+# Version 1.5
 
 # Control direct access to certain files.
 # Apache 2.2 and 2.4 compatible

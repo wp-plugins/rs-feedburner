@@ -1,7 +1,7 @@
 === RS FeedBurner - Easy Implementation of FeedBurner, FeedPress, and FeedBlitz Feeds ===
 Contributors: RedSand
 Donate link: http://www.redsandmarketing.com/rs-feedburner-donate/
-Tags: feedburner, feedpress, feedblitz, feed, feeds, feedsmith, redirect, redirects, redirection, rss, seo, subscribe, subscribers, subscription, feedburner alternative, comments
+Tags: feedburner, feedburner plugin, feedpress, feedpress plugin, feedblitz, feedblitz plugin, feed, feed plugin, feeds, feedsmith, redirect, redirects, redirection, rss, seo, subscribe, subscribers, subscription, feedburner alternative, comments
 Requires at least: 3.8
 Tested up to: 4.2
 Stable tag: trunk

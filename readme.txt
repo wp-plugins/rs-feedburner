@@ -1,7 +1,7 @@
-=== RS FeedBurner ===
+=== RS FeedBurner - Easy Implementation of FeedBurner, FeedPress, and FeedBlitz Feeds ===
 Contributors: RedSand
 Donate link: http://www.redsandmarketing.com/rs-feedburner-donate/
-Tags: feedburner, feedpress, feedblitz, feed, feeds, feedsmith, redirect, redirects, rss, seo, subscribe, subscribers, subscription, feedburner alternative, comments
+Tags: feedburner, feedpress, feedblitz, feed, feeds, feedsmith, redirect, redirects, redirection, rss, seo, subscribe, subscribers, subscription, feedburner alternative, comments
 Requires at least: 3.8
 Tested up to: 4.2
 Stable tag: trunk
@@ -10,7 +10,11 @@ This plugin detects native WordPress feeds and redirects them to your FeedBurner
 
 == Description == 
 
+One of the **easiest** ways to implement your FeedBurner, FeedPress, or FeedBlitz feed on your WordPress site. *It just works.*
+
 This plugin redirects all requests for your native WordPress feeds to your FeedBurner, FeedPress, or FeedBlitz feeds so you can track all your subscribers and maximize your blog/site readership and user engagement.
+
+This allows you to implement your favorite third-party feed optimization service without having to touch or modify an `.htaccess` file.
 
 You can redirect both your main WordPress feed and your comments feed if you like. (Comments feed is optional since not everyone uses it.)
 
@@ -27,8 +31,6 @@ Features:
 * Simple to use
 * Fast
 * Compatible
-
-One of the **easiest** ways to implement your FeedBurner, FeedPress, or FeedBlitz feed on your WordPress site. *It just works.*
 
 You will need a FeedBurner, FeedPress, or FeedBlitz account to use this plugin.
 

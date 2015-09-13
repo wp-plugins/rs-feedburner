@@ -108,6 +108,12 @@ Absolutely...go to my [WordPress Consulting](http://www.redsandmarketing.com/web
 
 == Changelog ==
 
+= 1.5.2 =
+*released 09/12/15*
+
+* Added some features to prevent certain feed issues.
+* Added appropriate ping URLs for FeedBurner and FeedPress to the "Update Services" setting under WordPress Settings -> Writing.
+* Added some troubleshooting steps to the plugin settings page.
 
 = 1.5.1 =
 *released 09/09/15*
@@ -220,5 +226,5 @@ Absolutely...go to my [WordPress Consulting](http://www.redsandmarketing.com/web
 This plugin is a fork of the original FeedBurner Feedsmith plugin by Steve Smith. Since it was discontinued, I picked up where it left off so we all can have an actively updated plugin.
 
 == Upgrade Notice ==
-= 1.5.1 =
-* Fixed a bug that some sites were experiencing after upgrading to WordPress 4.3, and made various other code improvements. Please see Changelog for details.
+= 1.5.2 =
+* Added some features to prevent certain feed issues, added appropriate ping URLs to the "Update Services" setting, and added troubleshooting steps to the plugin settings page. Please see Changelog for details.

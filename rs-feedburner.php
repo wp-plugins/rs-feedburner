@@ -4,7 +4,7 @@ Plugin Name: RS FeedBurner
 Plugin URI: http://www.redsandmarketing.com/plugins/rs-feedburner/
 Description: This plugin detects native WordPress feeds and redirects them to your FeedBurner, FeedPress, or FeedBlitz feeds so you can track your subscribers. 
 Author: Scott Allen
-Version: 1.5.1
+Version: 1.5.2
 Author URI: http://www.redsandmarketing.com/
 Text Domain: rs-feedburner
 License: GPLv2
@@ -35,12 +35,19 @@ if( !defined( 'ABSPATH' ) ) {
 	die('ERROR: This plugin requires WordPress and will not function if called directly.');
 }
 
-define( 'RSFB_VERSION', '1.5.1' );
+define( 'RSFB_VERSION', '1.5.2' );
 define( 'RSFB_REQUIRED_WP_VERSION', '3.8' );
-/* Constants prefixed with 'RSFB_' are shared with other RSM Plugins for efficiency. */
+
+rsfb_getenv();
+
 if( !defined( 'RSFB_DEBUG' ) ) 					{ define( 'RSFB_DEBUG', FALSE ); } // Do not change value unless developer asks you to - for debugging only. Change in wp-config.php.
+if( !defined( 'RSFB_DEBUG_SERVER_NAME' ) )		{ define( 'RSFB_DEBUG_SERVER_NAME', '.redsandmarketing.com' ); }
+if( !defined( 'RSFB_DEBUG_SERVER_NAME_REV' ) )	{ define( 'RSFB_DEBUG_SERVER_NAME_REV', strrev( RSFB_DEBUG_SERVER_NAME ) ); }
 if( !defined( 'RSFB_EOL' ) ) 					{ $rsfb_eol = defined( 'PHP_EOL' ) ? PHP_EOL : rsfb_eol(); define( 'RSFB_EOL', $rsfb_eol ); }
 if( !defined( 'RSFB_DS' ) ) 					{ $rsfb_ds = defined( 'DIRECTORY_SEPARATOR' ) ? DIRECTORY_SEPARATOR : rsfb_ds(); define( 'RSFB_DS', $rsfb_ds ); }
+if( !defined( 'RSFB_SERVER_ADDR' ) ) 			{ define( 'RSFB_SERVER_ADDR', rsfb_get_server_addr() ); }								// 10.20.30.100
+if( !defined( 'RSFB_SERVER_NAME' ) ) 			{ define( 'RSFB_SERVER_NAME', rsfb_get_server_name() ); }								// example.com
+if( !defined( 'RSFB_SERVER_NAME_REV' ) ) 		{ define( 'RSFB_SERVER_NAME_REV', strrev( RSFB_SERVER_NAME ) ); }
 if( !defined( 'RSFB_SITE_URL' ) ) 				{ define( 'RSFB_SITE_URL', untrailingslashit( home_url() ) ); } 						// http://example.com
 if( !defined( 'RSFB_SITE_DOMAIN' ) ) 			{ define( 'RSFB_SITE_DOMAIN', rsfb_get_domain( RSFB_SITE_URL ) ); }						// example.com
 if( !defined( 'RSFB_PLUGINS_DIR_URL' ) ) 		{ define( 'RSFB_PLUGINS_DIR_URL', untrailingslashit( plugins_url() ) ); } 				// http://example.com/wp-content/plugins
@@ -54,11 +61,6 @@ if( !defined( 'RSFB_PLUGIN_FILE_URL' ) ) 		{ define( 'RSFB_PLUGIN_FILE_URL', RSF
 if( !defined( 'RSFB_PLUGIN_IMG_URL' ) ) 		{ define( 'RSFB_PLUGIN_IMG_URL', RSFB_PLUGIN_URL . '/img' ); }							// http://example.com/wp-content/plugins/rs-feedburner/img
 if( !defined( 'RSFB_PLUGIN_PATH' ) ) 			{ define( 'RSFB_PLUGIN_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) ); } 	// /public_html/wp-content/plugins/rs-feedburner
 if( !defined( 'RSFB_PLUGIN_FILE_PATH' ) )		{ define( 'RSFB_PLUGIN_FILE_PATH', RSFB_PLUGIN_PATH.'/'.RSFB_PLUGIN_FILE_BASENAME ); }	// /public_html/wp-content/plugins/rs-feedburner/rs-feedburner.php
-if( !defined( 'RSFB_SERVER_ADDR' ) ) 			{ define( 'RSFB_SERVER_ADDR', rsfb_get_server_addr() ); }								// 10.20.30.100
-if( !defined( 'RSFB_SERVER_NAME' ) ) 			{ define( 'RSFB_SERVER_NAME', rsfb_get_server_name() ); }								// example.com
-if( !defined( 'RSFB_SERVER_NAME_REV' ) ) 		{ define( 'RSFB_SERVER_NAME_REV', strrev( RSFB_SERVER_NAME ) ); }
-if( !defined( 'RSFB_DEBUG_SERVER_NAME' ) )		{ define( 'RSFB_DEBUG_SERVER_NAME', '.redsandmarketing.com' ); }
-if( !defined( 'RSFB_DEBUG_SERVER_NAME_REV' ) )	{ define( 'RSFB_DEBUG_SERVER_NAME_REV', strrev( RSFB_DEBUG_SERVER_NAME ) ); }
 if( !defined( 'RSFB_BLOG_NAME' ) ) 				{ define( 'RSFB_BLOG_NAME', get_bloginfo('name') ); }									// Blog Name
 if( !defined( 'RSFB_RSM_URL' ) ) 				{ define( 'RSFB_RSM_URL', 'http://www.redsandmarketing.com/' ); }
 if( !defined( 'RSFB_HOME_URL' ) ) 				{ define( 'RSFB_HOME_URL', RSFB_RSM_URL.'plugins/'.RSFB_PLUGIN_NAME.'/' ); }
@@ -107,7 +109,7 @@ function rsfb_feed_redirect() {
 		if( !empty($rsfb_redir_url) && strpos($rsfb_redir_url,'http')===0 ) {
 			/* wp_redirect() won't suffice here because need need to set specific no-cache headers */
 			if(function_exists('status_header')) { status_header( 302 ); }
-			if(function_exists('header_remove')){@header_remove('Cache-Control');@header_remove('Last-Modified');@header_remove('ETag');}
+			if(function_exists('header_remove')){@header_remove('Cache-Control');}
 			header('Cache-Control: private, no-store, no-cache, must-revalidate, max-age=0, proxy-revalidate, s-maxage=0, no-transform',TRUE); /* HTTP/1.1 - Tell browsers and proxies not to cache this */
 			header('Pragma: no-cache',TRUE); /* HTTP 1.0 */
 			header('Expires: Sat, 26 Jul 1997 05:00:00 GMT',TRUE); /* Date in the past */
@@ -118,17 +120,15 @@ function rsfb_feed_redirect() {
 		}
 	}
 }
-
 $rsfb_user_agent_lc = rsfb_get_user_agent( TRUE, TRUE );
-if( FALSE === strpos( $rsfb_user_agent_lc, 'feedburner' ) 		&& 
-	 FALSE === strpos( $rsfb_user_agent_lc, 'feedpress' ) 		&& 
-	 FALSE === strpos( $rsfb_user_agent_lc, 'feedblitz' ) 		&& 
-	 FALSE === strpos( $rsfb_user_agent_lc, 'uri.lv' ) 			&& 
-	 FALSE === strpos( $rsfb_user_agent_lc, 'feedvalidator' ) 
+if(	FALSE === strpos( $rsfb_user_agent_lc, 'feedburner'		) &&	/* FeedBurner/1.0 (http://www.FeedBurner.com) */
+	FALSE === strpos( $rsfb_user_agent_lc, 'feedpress'		) &&
+	FALSE === strpos( $rsfb_user_agent_lc, 'feedblitz'		) &&
+	FALSE === strpos( $rsfb_user_agent_lc, 'uri.lv'			) &&
+	FALSE === strpos( $rsfb_user_agent_lc, 'feedvalidator'	)
 	) {
 	add_action('template_redirect', 'rsfb_feed_redirect');
 }
-
 add_action( 'admin_menu', 'rsfb_add_plugin_settings_page' );
 add_filter( 'plugin_action_links', 'rsfb_filter_plugin_actions', 10, 2 );
 add_filter( 'plugin_row_meta', 'rsfb_filter_plugin_meta', 10, 2 );
@@ -141,6 +141,21 @@ function rsfb_eol() {
 function rsfb_ds() {
 	global $is_IIS;
 	return !empty( $is_IIS ) ? '\\' : '/';
+}
+function rsfb_getenv( $e = FALSE ) {
+	/***
+	* Get Environment Variables, or load a specific one.
+	* Ensures compatibility with servers that aren't set to populate $_ENV[] automatically.
+	***/
+	global $_RSFB_ENV;
+	if( empty( $_RSFB_ENV ) || !is_array( $_RSFB_ENV ) ) { $_RSFB_ENV = array(); }
+	$_RSFB_ENV = (array) $_RSFB_ENV + (array) $_ENV;
+	$vars = array( 'REMOTE_ADDR', 'SERVER_ADDR', 'HTTP_HOST', 'SERVER_NAME', );
+	if( !empty( $e ) ) { $vars[] = $e; }
+	foreach( $vars as $i => $v ) {
+		if( empty( $_RSFB_ENV[$v] ) ) { $_RSFB_ENV[$v] = $_ENV[$v] = ''; if( function_exists( 'getenv' ) ) { $_RSFB_ENV[$v] = $_ENV[$v] = @getenv($v); } }
+	}
+	return FALSE !== $e ? $_RSFB_ENV[$e] : $_RSFB_ENV;
 }
 function rsfb_sanitize_string( $string ) {
 	/* Sanitize a string. Fast. */
@@ -181,17 +196,22 @@ function rsfb_casetrans( $type, $string ) {
 			return $string;
 	}
 }
+function rsfb_sort_unique( $arr ) {
+	/* Removes duplicates and orders the array. */
+	$arr_tmp = array_unique( $arr ); natcasesort( $arr_tmp ); $new_arr = array_values( $arr_tmp );
+	return $new_arr;
+}
 function rsfb_get_server_addr() {
-	$server_addr = !empty( $_SERVER['SERVER_ADDR'] ) ? $_SERVER['SERVER_ADDR'] : $_ENV['SERVER_ADDR'];
+	$server_addr = !empty( $_SERVER['SERVER_ADDR'] ) ? $_SERVER['SERVER_ADDR'] : $_RSFB_ENV['SERVER_ADDR'];
 	if( empty( $server_addr ) ) { $server_addr = ''; }
 	return $server_addr;
 }
 function rsfb_get_server_name() {
 	$server_name = '';
-	if(		!empty( $_SERVER['HTTP_HOST'] ) )	{ $server_name = $_SERVER['HTTP_HOST']; }
-	elseif(	!empty( $_ENV['HTTP_HOST'] ) )		{ $server_name = $_ENV['HTTP_HOST']; }
-	elseif(	!empty( $_SERVER['SERVER_NAME'] ) )	{ $server_name = $_SERVER['SERVER_NAME']; }
-	elseif(	!empty( $_ENV['SERVER_NAME'] ) )	{ $server_name = $_ENV['SERVER_NAME']; }
+	if(		!empty( $_SERVER['HTTP_HOST'] ) )		{ $server_name = $_SERVER['HTTP_HOST']; }
+	elseif(	!empty( $_RSFB_ENV['HTTP_HOST'] ) )		{ $server_name = $_RSFB_ENV['HTTP_HOST']; }
+	elseif(	!empty( $_SERVER['SERVER_NAME'] ) )		{ $server_name = $_SERVER['SERVER_NAME']; }
+	elseif(	!empty( $_RSFB_ENV['SERVER_NAME'] ) )	{ $server_name = $_RSFB_ENV['SERVER_NAME']; }
 	return rsfb_casetrans( 'lower', $server_name );
 }
 function rsfb_get_domain($url) {
@@ -269,7 +289,7 @@ function rsfb_get_user_agent( $raw = FALSE, $lowercase = FALSE ) {
 	***/
 	if( !empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
 		$user_agent = !empty ( $raw ) ? trim( $_SERVER['HTTP_USER_AGENT'] ) : rsfb_sanitize_string( $_SERVER['HTTP_USER_AGENT'] );
-		if( !empty ( $lowercase ) ) { $user_agent = rsfb_casetrans( 'lower', $user_agent ); }
+		if( TRUE === $lowercase ) { $user_agent = rsfb_casetrans( 'lower', $user_agent ); }
 	}
 	else { $user_agent = ''; }
 	return $user_agent;
@@ -507,7 +527,7 @@ function rsfb_plugin_settings_page() {
 			if(rsfb_is_hash_valid($_POST['rs_token'])) {
 				$rsfb_flash_settings_saved	= __( 'Your settings have been saved.', RSFB_PLUGIN_NAME );
 				$rsfb_flash_feed_url_error	= __( 'Invalid value.', RSFB_PLUGIN_NAME ) . ' ' . __( 'Please enter a valid URL.', RSFB_PLUGIN_NAME ) . ' ' . __( 'Your settings have not been saved.', RSFB_PLUGIN_NAME );
-				if(isset($_POST['rs_feedburner_url'])) { 
+				if(isset($_POST['rs_feedburner_url'])) {
 					$rsfb_url = rsfb_fix_url( trim($_POST['rs_feedburner_url']) );
 					if( !preg_match( "~^https?\://~i", $rsfb_url ) && !empty( $rsfb_url ) ) {
 						$rsfb_flash 		= $rsfb_flash_feed_url_error;
@@ -566,15 +586,36 @@ function rsfb_plugin_settings_page() {
 	<li>'.sprintf( __( 'Optional: If you also want to use FeedBurner, FeedPress, or FeedBlitz for your WordPress comments feed,</br>create a <a href=%1$s>FeedBurner</a>, <a href=%2$s>FeedPress</a>, or <a href=%3$s>FeedBlitz</a> feed and then enter its address below:', RSFB_PLUGIN_NAME ), '"http://feedburner.google.com/" target="_blank" rel="external" ', '"http://feed.press/" target="_blank" rel="external" ', '"http://www.feedblitz.com/" target="_blank" rel="external" ' ).'<br /><input type="text" name="rs_feedburner_comments_url" value="'.esc_url( $rsfb_feedburner_settings['rs_feedburner_comments_url'] ).'" size="'.$rsfb_input_width.'" />
 	</ol>
 	<p><input type="submit" value="'.__( 'Save Changes' ).'" /></p></form>';
+	$ping_services = rsfb_get_ping_service_keys();
+	if( !empty( $rsfb_feedburner_settings['rs_feedburner_url'] ) || !empty( $rsfb_feedburner_settings['rs_feedburner_comments_url'] ) ) {
+		echo '<p>&nbsp;</p>'."\n".'<h3>'.__( 'Troubleshooting', RSFB_PLUGIN_NAME ).'</h3>'."\n".'<ul style="list-style-type:disc;padding-left:30px;">'."\n";
+	}
+	if( FALSE !== stripos( $rsfb_feedburner_settings['rs_feedburner_url'], 'feeds.feedburner.com' ) || FALSE !== stripos( $rsfb_feedburner_settings['rs_feedburner_comments_url'], 'feeds.feedburner.com' ) ) {
+		echo '<li>'.__( '<strong>Manually Update Your Feed</strong> To update your feed immediately, instead of waiting for FeedBurner\'s automatic 30 minute interval', RSFB_PLUGIN_NAME ) .': <strong><a href="https://feedburner.google.com/fb/a/pingSubmit?bloglink='.RSFB_SITE_URL.'" target="_blank" rel="external" >' . __( 'Ping FeedBurner', RSFB_PLUGIN_NAME ) .'</a></strong></li>'."\n";
+		echo '<li>'.__( '<strong>Troubleshootize</strong> - Log into your <a href="http://feedburner.google.com/" target="_blank" rel="external" >FeedBurner</a> account and click on the "Troubleshootize" tab for troubleshooting options and solutions.', RSFB_PLUGIN_NAME ).'</li>'."\n";
+		echo '<li>'.__( '<strong>Resync Your Feed</strong> - On the Troubleshootize page in your FeedBurner account, scroll down until you see "Resync Now". Click the button to resync your feed and clear FeedBurner\'s cached version of your feed.', RSFB_PLUGIN_NAME ) .'</li>'."\n";
+		rsfb_update_ping_service_keys( $ping_services, 'http://rpc.pingomatic.com/'.RSFB_EOL.'http://ping.feedburner.com' );
+	}
+	if( FALSE !== stripos( $rsfb_feedburner_settings['rs_feedburner_url'], 'feedpress.me' ) || FALSE !== stripos( $rsfb_feedburner_settings['rs_feedburner_comments_url'], 'feedpress.me' ) ) {
+		rsfb_update_ping_service_keys( $ping_services, 'http://rpc.pingomatic.com/'.RSFB_EOL.'https://feed.press/ping' );
+	}
+	if( FALSE !== stripos( $rsfb_feedburner_settings['rs_feedburner_url'], 'feeds.feedblitz.com' ) || FALSE !== stripos( $rsfb_feedburner_settings['rs_feedburner_comments_url'], 'feeds.feedblitz.com' ) ) {
+		rsfb_update_ping_service_keys( $ping_services, 'http://rpc.pingomatic.com/' );
+	}
+	if( !empty( $rsfb_feedburner_settings['rs_feedburner_url'] ) || !empty( $rsfb_feedburner_settings['rs_feedburner_comments_url'] ) ) {
+		echo '<li>'.__( '<strong>Don\'t Cache Feeds</strong> - If you use a caching plugin like WP Super Cache, W3 Total Cache, or something else, be sure that it is set to <em>NOT</em> cache feeds. This is very important!<br />&nbsp;'."\n".'<ul style="list-style-type:disc;padding-left:30px;"><li>In <strong>WP Super Cache</strong>, on the "Advanced" tab, scroll down to the section "Accepted Filenames & Rejected URIs", and uncheck the box for "Feeds (is_feed)" and click the "Save" button. Then, right below it, in the box "Add here strings (not a filename) that forces a page not to be cached", on a new line add "/feeds" and click the "Save Strings" button.</li>'."\n".'<li>In <strong>W3 Total Cache</strong>, on the "Page Cache" page in the "General" section, uncheck the box for "Cache feeds: site, categories, tags, comments" and click "Save all settings". Then scroll down to the "Advanced" section and in the box that says, "Never cache the following pages", add a new line with "/feeds" and click "Save all settings".</li>'."\n".'<li>Other caching plugins will have similar settings.', RSFB_PLUGIN_NAME ).'</li>'."\n".'</ul>'."\n";
+		echo '</ul>'."\n";
+	}
+
 	?>
 <p>&nbsp;</p>
-<p>&nbsp;</p>
 
-<p><strong><a href="<?php echo RSFB_DONATE_URL; ?>" target="_blank" rel="external" ><?php _e( 'Donate to RS FeedBurner', RSFB_PLUGIN_NAME ); ?></a></strong><br />
+<p><h3>Donate</h3>
+<strong><a href="<?php echo RSFB_DONATE_URL; ?>" target="_blank" rel="external" ><?php _e( 'Donate to RS FeedBurner', RSFB_PLUGIN_NAME ); ?></a></strong><br />
 <?php echo __( 'RS FeedBurner is provided for free.', RSFB_PLUGIN_NAME ) . ' ' . __( 'If you like the plugin, consider a donation to help further its development.', RSFB_PLUGIN_NAME ); ?></p>
 <p>&nbsp;</p>
 
-<p><strong><?php _e( 'Check out our other plugins:', RSFB_PLUGIN_NAME ); ?></strong></p>
+<p><h3><?php _e( 'Check out our other plugins:', RSFB_PLUGIN_NAME ); ?></h3></p>
 <p><?php _e( 'If you like RS FeedBurner, you might want to check out our other plugins:', RSFB_PLUGIN_NAME ); ?></p>
 <ul style="list-style-type:disc;padding-left:30px;">
 	<li><a href="http://www.redsandmarketing.com/plugins/wp-spamshield/" target="_blank" rel="external" ><?php echo 'WP-SpamShield ' . __( 'Anti-Spam', RSFB_PLUGIN_NAME ); ?></a> <?php _e( 'An extremely powerful and user friendly WordPress anti-spam plugin that stops blog comment spam cold, including trackback and pingback spam. Includes spam-blocking contact form feature, and protection from user registration spam as well. WP-SpamShield is an all-in-one spam solution for WordPress. See what it\'s like to run a WordPress site without spam!', RSFB_PLUGIN_NAME ); ?></li>
@@ -613,6 +654,28 @@ function rsfb_num_days_inst() {
 	$install_date	= empty( $rsfb_feedburner_settings['install_date'] ) ? $current_date : $rsfb_feedburner_settings['install_date'];
 	$num_days_inst	= rsfb_date_diff($install_date, $current_date); if( $num_days_inst < 1 ) { $num_days_inst = 1; }
 	return $num_days_inst;
+}
+function rsfb_get_ping_service_keys() {
+	/***
+	* Get ping service keys
+	***/
+	$keys	= trim(stripslashes(get_option('ping_sites')));
+	$arr	= explode(RSFB_EOL,$keys);
+	$tmp	= rsfb_sort_unique($arr);
+	$keys	= implode(RSFB_EOL,$tmp);
+	return $keys;
+}
+function rsfb_update_ping_service_keys( $keys, $add_key = NULL, $rem_key = NULL ) {
+	/***
+	* Update ping service keys
+	***/
+	$keys	= !empty( $rem_key ) ? str_replace( $rem_key, '', $keys ) : $keys;
+	$keys	= !empty( $add_key ) ? $keys.RSFB_EOL.$add_key : $keys;
+	$keys	= str_replace( RSFB_EOL.RSFB_EOL, RSFB_EOL, $keys );
+	$arr	= explode(RSFB_EOL,$keys);
+	$tmp	= rsfb_sort_unique($arr);
+	$keys	= implode(RSFB_EOL,$tmp);
+	update_option( 'ping_sites', $keys, FALSE );
 }
 /* Admin Functions - END */
 

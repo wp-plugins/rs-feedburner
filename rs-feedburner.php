@@ -267,14 +267,12 @@ function rsfb_get_user_agent( $raw = FALSE, $lowercase = FALSE ) {
 	* If blank, gives an initialized var to eliminate need for testing if isset() everywhere
 	* Default is sanitized - use raw for testing, and sanitized for output
 	***/
-	global $rsfb_user_agent;
-	if( !empty( $rsfb_user_agent ) ) { return $rsfb_user_agent; }
 	if( !empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-		$rsfb_user_agent = !empty ( $raw ) ? trim( $_SERVER['HTTP_USER_AGENT'] ) : rsfb_sanitize_string( $_SERVER['HTTP_USER_AGENT'] );
-		if( !empty ( $lowercase ) ) { $user_agent = rsfb_casetrans( 'lower', $rsfb_user_agent ); }
+		$user_agent = !empty ( $raw ) ? trim( $_SERVER['HTTP_USER_AGENT'] ) : rsfb_sanitize_string( $_SERVER['HTTP_USER_AGENT'] );
+		if( !empty ( $lowercase ) ) { $user_agent = rsfb_casetrans( 'lower', $user_agent ); }
 	}
-	else { $rsfb_user_agent = ''; }
-	return $rsfb_user_agent;
+	else { $user_agent = ''; }
+	return $user_agent;
 }
 function rsfb_format_bytes( $size, $precision = 2 ) {
 	if( !is_numeric( $size ) || empty( $size ) ) { return $size; }
